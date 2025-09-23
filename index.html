@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lern-App Heilpraktiker</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      transition: background 0.4s ease, color 0.4s ease;
+      background: #1a1a1a;
+      color: #e0e0e0;
+      line-height: 1.6;
+    }
+
+    body.light {
+      background: #f0f0f0;
+      color: #1a1a1a;
+    }
+
+    .sidebar {
+      width: 240px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100%;
+      background: #222;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+      transition: transform 0.4s ease;
+      overflow-y: auto;
+    }
+
+    body.light .sidebar {
+      background: #d0d0d0;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      color: #fff;
+      letter-spacing: 0.5px;
+    }
+
+    body.light .sidebar h2 {
+      color: #1a1a1a;
+    }
+
+    .tab {
+      padding: 14px;
+      margin: 8px 0;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #333;
+      color: #e0e0e0;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    body.light .tab {
+      background: #bbb;
+      color: #1a1a1a;
+    }
+
+    .tab:hover {
+      background: #555;
+      transform: translateX(5px);
+    }
+
+    body.light .tab:hover {
+      background: #999;
+    }
+
+    .tab.active {
+      background: #666;
+      color: #fff;
+      transform: translateX(5px);
+    }
+
+    body.light .tab.active {
+      background: #888;
+      color: #fff;
+    }
+
+    .mode-selector, .feedback-selector {
+      margin: 16px 0;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .mode-btn, .feedback-btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      background: #333;
+      color: #e0e0e0;
+      transition: all 0.3s ease;
+    }
+
+    body.light .mode-btn, body.light .feedback-btn {
+      background: #bbb;
+      color: #1a1a1a;
+    }
+
+    .mode-btn.active, .feedback-btn.active {
+      background: #666;
+      color: #fff;
+    }
+
+    body.light .mode-btn.active, body.light .feedback-btn.active {
+      background: #888;
+      color: #fff;
+    }
+
+    .mode-btn:hover, .feedback-btn:hover {
+      background: #555;
+      transform: translateY(-2px);
+    }
+
+    body.light .mode-btn:hover, body.light .feedback-btn:hover {
+      background: #999;
+    }
+
+    .main {
+      margin-left: 260px;
+      padding: 40px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.4s ease;
+    }
+
+    #welcome {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: fadeInOut 3.5s ease forwards;
+      color: #fff;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    body.light #welcome {
+      color: #1a1a1a;
+      text-shadow: none;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateY(-30px); }
+      20% { opacity: 1; transform: translateY(0); }
+      80% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-30px); }
+    }
+
+    .topics-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 700px;
+      opacity: 0;
+      animation: slideIn 0.5s ease forwards;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .topic-btn {
+      display: block;
+      width: 100%;
+      max-width: 300px;
+      text-align: center;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 12px 0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #333;
+      color: #fff;
+      border: none;
+      font-size: 1.1rem;
+      font-weight: 500;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    body.light .topic-btn {
+      background: #888;
+      color: #fff;
+    }
+
+    .topic-btn.show {
+      opacity: 1;
+      transform: translateY(0);
+      animation: popIn 0.4s ease forwards;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .topic-btn:hover {
+      transform: scale(1.03);
+      background: #444;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    body.light .topic-btn:hover {
+      background: #777;
+    }
+
+    .quiz-container {
+      padding: 32px;
+      border-radius: 16px;
+      max-width: 700px;
+      width: 100%;
+      text-align: center;
+      opacity: 0;
+      transform: scale(0.96);
+      transition: all 0.5s ease;
+      background: #2a2a2a;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    body.light .quiz-container {
+      background: #fff;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .quiz-container.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .quiz-container h2 {
+      font-size: 1.8rem;
+      margin-bottom: 24px;
+      color: #fff;
+      font-weight: 700;
+      line-height: 1.4;
+      padding: 0 16px;
+    }
+
+    body.light .quiz-container h2 {
+      color: #1a1a1a;
+    }
+
+    .options {
+      margin: 20px 0;
+    }
+
+    .options button {
+      display: block;
+      width: 100%;
+      margin: 12px 0;
+      padding: 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      font-size: 1rem;
+      font-weight: 500;
+      background: #3c3c3c;
+      color: #e0e0e0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      text-align: left;
+    }
+
+    body.light .options button {
+      background: #ddd;
+      color: #1a1a1a;
+    }
+
+    .options button:hover {
+      background: #555;
+      transform: translateY(-2px);
+    }
+
+    body.light .options button:hover {
+      background: #bbb;
+    }
+
+    .options button.correct {
+      background: #4caf50;
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    body.light .options button.correct {
+      background: #2e7d32; /* Darker green for better contrast in light mode */
+      color: #fff;
+    }
+
+    .options button.wrong {
+      background: #e53935;
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    body.light .options button.wrong {
+      background: #c62828; /* Darker red for better contrast in light mode */
+      color: #fff;
+    }
+
+    #nextBtn, #backBtn, #restartBtn {
+      margin: 20px 10px 0;
+      padding: 12px 30px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: none;
+      font-size: 1rem;
+      background: #555;
+      color: #fff;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+
+    body.light #nextBtn, body.light #backBtn, body.light #restartBtn {
+      background: #666;
+      color: #fff;
+    }
+
+    #nextBtn:hover, #backBtn:hover, #restartBtn:hover {
+      background: #666;
+      transform: translateY(-2px);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    body.light #nextBtn:hover, body.light #backBtn:hover, body.light #restartBtn:hover {
+      background: #555;
+    }
+
+    #nextBtn[hidden], #backBtn[hidden], #restartBtn[hidden] {
+      display: none;
+    }
+
+    .toggle-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 64px;
+      height: 32px;
+      background: #333;
+      border-radius: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 3px;
+      transition: all 0.4s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    body.light .toggle-container {
+      background: #ccc;
+    }
+
+    .toggle-ball {
+      width: 26px;
+      height: 26px;
+      background: #fff;
+      border-radius: 50%;
+      transition: all 0.4s ease;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    body.light .toggle-ball {
+      background: #333;
+      transform: translateX(32px);
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 16px;
+        box-shadow: none;
+      }
+
+      .main {
+        margin-left: 0;
+        padding: 24px;
+      }
+
+      .topic-btn {
+        max-width: 100%;
+      }
+
+      .quiz-container {
+        padding: 24px;
+      }
+
+      .quiz-container h2 {
+        font-size: 1.5rem;
+      }
+
+      .toggle-container {
+        top: 10px;
+        right: 10px;
+      }
+
+      .mode-selector, .feedback-selector {
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="toggle-container" id="toggleDark" role="button" aria-label="Toggle light mode">
+    <div class="toggle-ball"></div>
+  </div>
+  <div class="sidebar" role="navigation" aria-label="Main navigation">
+    <h2>Heilpraktiker Lernen</h2>
+    <div class="mode-selector">
+      <button class="mode-btn active" id="quizModeBtn">Quiz-Modus</button>
+      <button class="mode-btn" id="questionModeBtn">Fragen-Modus</button>
+    </div>
+    <div class="feedback-selector">
+      <button class="feedback-btn active" id="immediateFeedbackBtn">Sofortige Rückmeldung</button>
+      <button class="feedback-btn" id="delayedFeedbackBtn">Verzögerte Rückmeldung</button>
+    </div>
+    <div class="tab active" data-topic="Anatomie">Anatomie</div>
+    <div class="tab" data-topic="Physiologie">Physiologie</div>
+    <div class="tab" data-topic="Pathologie">Pathologie</div>
+    <div class="tab" data-topic="Heilpflanzen">Heilpflanzen</div>
+    <div class="tab" data-topic="Gesetzeskunde">Gesetzeskunde</div>
+  </div>
+  <div class="main" role="main">
+    <div id="welcome">Herzlich Willkommen!</div>
+    <div id="topics" class="topics-container"></div>
+    <div id="quizContainer" class="quiz-container">
+      <h2 id="question" aria-live="polite"></h2>
+      <div id="options" class="options"></div>
+      <button id="nextBtn" hidden>Nächste Frage</button>
+      <button id="restartBtn" hidden>Neustarten</button>
+      <button id="backBtn" hidden>Zurück zu Themen</button>
+    </div>
+  </div>
+
+  <script>
+    const allTopics = {
+      "Anatomie": [
+        { name: "Herz", 
+          quizQuestions: [
+            { question: "Welche der folgenden Aussagen zur Anatomie des Herzens sind richtig? 1. Das Herz besteht aus zwei Herzkammern und zwei Herzvorhöfen. 2. Die Blutversorgung des Herzens erfolgt über die Herzkranzgefäße. 3. Die Windkesselfunktion der Aorta ist erforderlich, damit das Blut während der Systole nicht zurück in die Herzkammer fließt. 4. Die Erregungsbildung im Herzen wird nicht durch äußere Faktoren beeinflusst. 5. Das Herz besteht aus zwei Schichten, der Herzinnenhaut und der Muskulatur.", options: [
+              "A) Nur die Aussagen 1 und 2 sind richtig",
+              "B) Nur die Aussagen 1 und 3 sind richtig",
+              "C) Nur die Aussagen 2 und 3 sind richtig",
+              "D) Nur die Aussagen 2 und 4 sind richtig",
+              "E) Nur die Aussagen 4 und 5 sind richtig"
+            ], answer: "A) Nur die Aussagen 1 und 2 sind richtig" },
+            { question: "Welche Aussage zum AV-Knoten ist richtig? Der AV-Knoten…", options: [
+              "A) ist Bestandteil des HIS-Bündels.",
+              "B) ist im linken Herzvorhof lokalisiert.",
+              "C) ist das primäre Erregungsbildungszentrum des Herzens.",
+              "D) ist ein Zusammenschluss der Purkinjefasern.",
+              "E) ist das sekundäre Erregungsbildungszentrum des Herzens."
+            ], answer: "E) ist das sekundäre Erregungsbildungszentrum des Herzens." },
+            { question: "Welche Schicht des Herzens ist für die Kontraktion verantwortlich? Welche Herzklappe befindet sich zwischen rechtem Vorhof und rechter Kammer? Erklären Sie die Windkesselfunktion.", options: [
+              "A) Endokard, Mitralklappe, Druckausgleich",
+              "B) Myokard, Trikuspidalklappe, Druckausgleich in der Aorta",
+              "C) Perikard, Aortenklappe, Blutrückflussverhinderung",
+              "D) Epikard, Pulmonalklappe, Sauerstofftransport"
+            ], answer: "B) Myokard, Trikuspidalklappe, Druckausgleich in der Aorta" }
+          ],
+          practiceQuestions: [
+            { question: "Wie viele Kammern hat das Herz?", options: ["2", "3", "4", "5"], answer: "4" },
+            { question: "Was versorgt die Herzkranzgefäße?", options: [
+              "A) Lunge",
+              "B) Herzmuskel",
+              "C) Leber",
+              "D) Niere"
+            ], answer: "B) Herzmuskel" },
+            { question: "Welche Herzklappe befindet sich zwischen linkem Vorhof und linker Kammer?", options: [
+              "A) Mitralklappe",
+              "B) Trikuspidalklappe",
+              "C) Aortenklappe",
+              "D) Pulmonalklappe"
+            ], answer: "A) Mitralklappe" }
+          ]
+        },
+        { name: "Leber", 
+          quizQuestions: [
+            { question: "Welche Aussagen zur Leber sind richtig? 1. Die Leber ist die größte Drüse des menschlichen Körpers. 2. Die Leber liegt im rechten Oberbauch unter dem rechten Rippenbogen und reicht nach links bis in die Magengrube. 3. Die gesunde Leber eines Erwachsenen wiegt circa 1200 bis 2000g. 4. An der Leberpforte treten die Vena portae, die Arteria hepatica und der Ductus hepaticus communis aus. 5. Die Leber hat keine regenerative Fähigkeit.", options: [
+              "A) Nur die Aussagen 1 und 2 sind richtig",
+              "B) Nur die Aussagen 1, 2 und 3 sind richtig",
+              "C) Nur die Aussagen 2 und 3 sind richtig",
+              "D) Nur die Aussagen 1, 2, 3 und 4 sind richtig",
+              "E) Alle Aussagen sind richtig"
+            ], answer: "D) Nur die Aussagen 1, 2, 3 und 4 sind richtig" },
+            { question: "Beschreiben Sie die Hauptfunktionen der Leber, einschließlich Entgiftung, Speicherung und Produktion von Galle. Welche Gefäße versorgen die Leber?", options: [
+              "A) Entgiftung, Speicherung, Galleproduktion; Vena portae und Arteria hepatica",
+              "B) Verdauung, Hormonproduktion, Entgiftung; Aorta und Vena cava",
+              "C) Blutfiltration, Wasserresorption, Galle; Ureter und Arteria renalis",
+              "D) Sauerstofftransport, Immunabwehr, Galle; Pulmonalarterie und Vena"
+            ], answer: "A) Entgiftung, Speicherung, Galleproduktion; Vena portae und Arteria hepatica" },
+            { question: "Welche Rolle spielt die Leber im Stoffwechsel? Erklären Sie die Beteiligung an der Glukoseregulation und Proteinsynthese.", options: [
+              "A) Speichert Glykogen, synthetisiert Proteine",
+              "B) Produziert Insulin, verdaut Fette",
+              "C) Filtert Urin, resorbiert Wasser",
+              "D) Transportiert Sauerstoff, bekämpft Infektionen"
+            ], answer: "A) Speichert Glykogen, synthetisiert Proteine" }
+          ],
+          practiceQuestions: [
+            { question: "Welche Hauptfunktion hat die Leber?", options: ["Entgiftung", "Speicherung", "Verdauung", "Hormone"], answer: "Entgiftung" },
+            { question: "Wo liegt die Leber im Körper?", options: [
+              "A) Linker Unterbauch",
+              "B) Rechter Oberbauch",
+              "C) Mittlerer Oberbauch",
+              "D) Linker Oberbauch"
+            ], answer: "B) Rechter Oberbauch" },
+            { question: "Was produziert die Leber für die Verdauung?", options: [
+              "A) Insulin",
+              "B) Galle",
+              "C) Pepsin",
+              "D) Amylase"
+            ], answer: "B) Galle" }
+          ]
+        },
+        { name: "Magen", 
+          quizQuestions: [
+            { question: "Welche Aussagen zum Magen sind richtig? 1. Der Magen ist Teil des Verdauungstrakts und dient der mechanischen und chemischen Zersetzung der Nahrung. 2. Der Magen liegt im linken Oberbauch. 3. Pepsin ist das Enzym, das Proteine im Magen zersetzt. 4. Die Magenschleimhaut produziert Salzsäure. 5. Der Magen hat keine Rolle bei der Aufnahme von Nährstoffen.", options: [
+              "A) Nur die Aussagen 1, 3 und 4 sind richtig",
+              "B) Nur die Aussagen 1 und 2 sind richtig",
+              "C) Alle Aussagen sind richtig",
+              "D) Nur die Aussagen 2 und 5 sind richtig"
+            ], answer: "A) Nur die Aussagen 1, 3 und 4 sind richtig" },
+            { question: "Beschreiben Sie die Schichten des Magens und ihre Funktionen. Welche Zellen produzieren Pepsinogen und Salzsäure?", options: [
+              "A) Mukosa (Schleimhaut), Submukosa, Muscularis, Serosa; Hauptzellen (Pepsinogen), Belegzellen (Salzsäure)",
+              "B) Endothelium, Myothelium, Peritoneum; G-Zellen, D-Zellen",
+              "C) Epithel, Lamina propria, Muscularis mucosa; Enterozyten, Gobletzellen",
+              "D) Tunica intima, Tunica media, Tunica adventitia; Endothelzellen, Glatte Muskelzellen"
+            ], answer: "A) Mukosa (Schleimhaut), Submukosa, Muscularis, Serosa; Hauptzellen (Pepsinogen), Belegzellen (Salzsäure)" },
+            { question: "Welche Hormone regulieren die Magensaftsekretion? Erklären Sie die Phasen der Magensekretion (zephal, gastral, intestinal).", options: [
+              "A) Gastrin, Histamin, Acetylcholin; Zephal (nervös), Gastral (hormonell), Intestinal (enterogastronhemmend)",
+              "B) Insulin, Glukagon, Cortisol; Oral, Duodenal, Jejunal",
+              "C) Adrenalin, Noradrenalin, Serotonin; Sympathetisch, Parasympathetisch, Enteral",
+              "D) Thyroxin, Calcitonin, Parathormon; Endokrin, Parakrin, Autokrin"
+            ], answer: "A) Gastrin, Histamin, Acetylcholin; Zephal (nervös), Gastral (hormonell), Intestinal (enterogastronhemmend)" }
+          ],
+          practiceQuestions: [
+            { question: "Welches Enzym zersetzt Proteine im Magen?", options: ["Amylase", "Pepsin", "Lipase", "Laktase"], answer: "Pepsin" },
+            { question: "Wo befindet sich der Magen im Körper?", options: [
+              "A) Rechter Unterbauch",
+              "B) Linker Oberbauch",
+              "C) Rechter Oberbauch",
+              "D) Mittlerer Unterbauch"
+            ], answer: "B) Linker Oberbauch" },
+            { question: "Welche Substanz schützt die Magenschleimhaut?", options: [
+              "A) Salzsäure",
+              "B) Schleim",
+              "C) Galle",
+              "D) Insulin"
+            ], answer: "B) Schleim" }
+          ]
+        },
+        { name: "Bewegungsapparat", 
+          quizQuestions: [
+            { question: "Welche der folgenden Aussagen zu Frakturen sind richtig? 1. Eine Grünholzfraktur tritt typischerweise im Kindesalter auf mit erhaltenem Periostschlauch. 2. Eine Kompressionsfraktur betrifft oft die Wirbelkörper. 3. Bei einer offenen Fraktur ist die Haut verletzt. 4. Die Heilung einer Fraktur verläuft in Phasen: Hämatom, Granulationsgewebe, Kallus, Remodellierung. 5. Osteoporose erhöht das Frakturrisiko.", options: [
+              "A) Nur die Aussagen 1 und 2 sind richtig",
+              "B) Nur die Aussagen 1, 3 und 4 sind richtig",
+              "C) Alle Aussagen sind richtig",
+              "D) Nur die Aussagen 2 und 5 sind richtig"
+            ], answer: "C) Alle Aussagen sind richtig" },
+            { question: "Erklären Sie die Dermatome und ihre Zuordnung. Welchem Dermatom entspricht ein Taubheitsgefühl am Kleinfinger und Ringfinger?", options: [
+              "A) Dermatome sind Hautareale, die von einem Spinalnerven versorgt werden; C8",
+              "B) Dermatome sind Muskelgruppen; Th6",
+              "C) Dermatome sind Gelenke; L3",
+              "D) Dermatome sind Organe; C2"
+            ], answer: "A) Dermatome sind Hautareale, die von einem Spinalnerven versorgt werden; C8" },
+            { question: "Welche Knochen bilden den Schultergürtel? Beschreiben Sie die Funktion des Periosts bei Frakturen.", options: [
+              "A) Schlüsselbein und Schulterblatt; Nährstoffversorgung und Heilung",
+              "B) Oberarmknochen und Elle; Schutz und Stabilität",
+              "C) Speiche und Handwurzelknochen; Beweglichkeit und Dämpfung",
+              "D) Hüftknochen und Oberschenkelknochen; Tragfähigkeit und Rotation"
+            ], answer: "A) Schlüsselbein und Schulterblatt; Nährstoffversorgung und Heilung" }
+          ],
+          practiceQuestions: [
+            { question: "Was versteht man unter einer Grünholzfraktur?", options: [
+              "A) Abriss eines Knochenfragments",
+              "B) Offene Fraktur",
+              "C) Mehrfragmentbruch",
+              "D) Fraktur im Kindesalter mit erhaltenem Periost"
+            ], answer: "D) Fraktur im Kindesalter mit erhaltenem Periost" },
+            { question: "Welchem Dermatom ist ein Taubheitsgefühl am Kleinfinger zuzuordnen?", options: [
+              "A) C2",
+              "B) C8",
+              "C) Th6",
+              "D) L3"
+            ], answer: "B) C8" },
+            { question: "Welcher Muskel beugt den Ellenbogen?", options: [
+              "A) Trizeps",
+              "B) Bizeps",
+              "C) Deltoideus",
+              "D) Pectoralis"
+            ], answer: "B) Bizeps" }
+          ]
+        }
+      ],
+      "Physiologie": [
+        { name: "Blut", 
+          quizQuestions: [
+            { question: "Welche der folgenden Aussagen trifft (treffen) zu? Typische Folge(n)/Nebenwirkung(en) einer oralen Eisentherapie ist (sind): 1. Mundwinkelrhagaden 2. Bierbraune Färbung des Urins 3. Schwarzfärbung des Stuhls 4. Magenbeschwerden 5. Störung der Resorption und damit der Wirkung verschiedener Medikamente", options: [
+              "A) Nur 3 ist richtig",
+              "B) Nur 1, 4 und 5 sind richtig",
+              "C) Nur 3, 4 und 5 sind richtig",
+              "D) Nur 1, 2, 3 und 4 sind richtig",
+              "E) Nur 2, 3, 4 und 5 sind richtig"
+            ], answer: "C) Nur 3, 4 und 5 sind richtig" },
+            { question: "Beschreiben Sie die Funktion der Blutzellen. Welche Zellen transportieren Sauerstoff, welche sind für die Immunabwehr zuständig und welche für die Gerinnung?", options: [
+              "A) Erythrozyten (Sauerstoff), Leukozyten (Immunabwehr), Thrombozyten (Gerinnung)",
+              "B) Leukozyten (Sauerstoff), Erythrozyten (Immunabwehr), Thrombozyten (Gerinnung)",
+              "C) Thrombozyten (Sauerstoff), Leukozyten (Gerinnung), Erythrozyten (Immunabwehr)",
+              "D) Erythrozyten (Gerinnung), Thrombozyten (Immunabwehr), Leukozyten (Sauerstoff)"
+            ], answer: "A) Erythrozyten (Sauerstoff), Leukozyten (Immunabwehr), Thrombozyten (Gerinnung)" },
+            { question: "Welche Rolle spielt Hämoglobin? Erklären Sie die Blutgruppen und den Universalspender.", options: [
+              "A) Sauerstoffbindung; A, B, AB, 0; 0- als Universalspender",
+              "B) Gerinnungsfaktor; Rh positiv/negativ; AB+ als Universalspender",
+              "C) Immunprotein; HLA-Typen; A+ als Universalspender",
+              "D) Enzym; Kell-System; B- als Universalspender"
+            ], answer: "A) Sauerstoffbindung; A, B, AB, 0; 0- als Universalspender" }
+          ],
+          practiceQuestions: [
+            { question: "Welche Zellen transportieren Sauerstoff?", options: ["Leukozyten", "Erythrozyten", "Thrombozyten", "Neuron"], answer: "Erythrozyten" },
+            { question: "Was ist die Hauptfunktion der Thrombozyten?", options: [
+              "A) Sauerstofftransport",
+              "B) Immunabwehr",
+              "C) Blutgerinnung",
+              "D) Entgiftung"
+            ], answer: "C) Blutgerinnung" },
+            { question: "Welches Protein bindet Sauerstoff in Erythrozyten?", options: [
+              "A) Myoglobin",
+              "B) Hämoglobin",
+              "C) Albumin",
+              "D) Fibrinogen"
+            ], answer: "B) Hämoglobin" }
+          ]
+        },
+        { name: "Verdauung", 
+          quizQuestions: [
+            { question: "Welche Aussagen zur Verdauung sind richtig? 1. Die Kohlenhydratverdauung beginnt im Mund durch Amylase. 2. Die Bauchspeicheldrüse produziert Insulin und Glukagon. 3. Der Dickdarm resorbiert hauptsächlich Wasser. 4. Die Gallenblase produziert Galle. 5. Der Dünndarm ist der Hauptort der Nährstoffaufnahme.", options: [
+              "A) Nur die Aussagen 1, 2, 3 und 5 sind richtig",
+              "B) Nur die Aussagen 1 und 3 sind richtig",
+              "C) Nur die Aussagen 2 und 4 sind richtig",
+              "D) Alle Aussagen sind richtig"
+            ], answer: "A) Nur die Aussagen 1, 2, 3 und 5 sind richtig" },
+            { question: "Beschreiben Sie die Verdauungsphasen. Welche Enzyme sind für die Verdauung von Fetten im Dünndarm verantwortlich?", options: [
+              "A) Zephal, gastral, intestinal; Lipase",
+              "B) Oral, duodenal, jejunal; Pepsin",
+              "C) Sympathetisch, parasympathetisch, enteral; Amylase",
+              "D) Endokrin, parakrin, autokrin; Trypsin"
+            ], answer: "A) Zephal, gastral, intestinal; Lipase" },
+            { question: "Welche Rolle spielt die Gallenblase? Wie unterstützt die Bauchspeicheldrüse die Verdauung?", options: [
+              "A) Speichert Galle; produziert Verdauungsenzyme und Hormone",
+              "B) Produziert Galle; resorbiert Nährstoffe",
+              "C) Verdaut Fette; synthetisiert Insulin",
+              "D) Filtert Blut; produziert Pepsin"
+            ], answer: "A) Speichert Galle; produziert Verdauungsenzyme und Hormone" }
+          ],
+          practiceQuestions: [
+            { question: "Welches Organ produziert Insulin?", options: ["Leber", "Bauchspeicheldrüse", "Magen", "Darm"], answer: "Bauchspeicheldrüse" },
+            { question: "Welches Enzym verdaut Fette im Dünndarm?", options: [
+              "A) Amylase",
+              "B) Lipase",
+              "C) Pepsin",
+              "D) Trypsin"
+            ], answer: "B) Lipase" },
+            { question: "Wo beginnt die Kohlenhydratverdauung?", options: [
+              "A) Magen",
+              "B) Mund",
+              "C) Dünndarm",
+              "D) Dickdarm"
+            ], answer: "B) Mund" }
+          ]
+        },
+        { name: "Niere", 
+          quizQuestions: [
+            { question: "Welche Aussagen zur Niere sind richtig? 1. Die Niere filtert das Blut im Glomerulus. 2. Das Nephron ist die funktionelle Einheit der Niere. 3. Die Niere produziert Erythropoetin. 4. Die Niere resorbiert ausschließlich Wasser. 5. Der Harn wird im Nierenbecken gesammelt.", options: [
+              "A) Nur die Aussagen 1, 2, 3 und 5 sind richtig",
+              "B) Nur die Aussagen 1 und 3 sind richtig",
+              "C) Alle Aussagen sind richtig",
+              "D) Nur die Aussagen 2 und 4 sind richtig"
+            ], answer: "A) Nur die Aussagen 1, 2, 3 und 5 sind richtig" },
+            { question: "Beschreiben Sie die Funktion des Nephrons. Welches Hormon wird in der Niere produziert, und welche Rolle spielt es?", options: [
+              "A) Blutfiltration; Erythropoetin, regt Blutbildung an",
+              "B) Verdauung; Insulin, reguliert Blutzucker",
+              "C) Wasserresorption; Adrenalin, steigert Herzfrequenz",
+              "D) Immunabwehr; Thyroxin, reguliert Stoffwechsel"
+            ], answer: "A) Blutfiltration; Erythropoetin, regt Blutbildung an" },
+            { question: "Welche Elektrolyte reguliert die Niere? Wie funktioniert die Blutdruckregulation durch die Niere?", options: [
+              "A) Natrium, Kalium, Kalzium; Renin-Angiotensin-Aldosteron-System",
+              "B) Magnesium, Chlorid; Insulin-Glukagon-System",
+              "C) Eisen, Zink; Adrenalin-Noradrenalin-System",
+              "D) Kalzium, Phosphat; Gastrin-Histamin-System"
+            ], answer: "A) Natrium, Kalium, Kalzium; Renin-Angiotensin-Aldosteron-System" }
+          ],
+          practiceQuestions: [
+            { question: "Welche Funktion hat die Niere primär?", options: ["Entgiftung", "Blutdruckregulation", "Verdauung", "Hormonspeicherung"], answer: "Entgiftung" },
+            { question: "Welche Struktur in der Niere filtert das Blut?", options: [
+              "A) Glomerulus",
+              "B) Tubulus",
+              "C) Calyx",
+              "D) Ureter"
+            ], answer: "A) Glomerulus" },
+            { question: "Welches Hormon wird in der Niere produziert?", options: [
+              "A) Insulin",
+              "B) Erythropoetin",
+              "C) Adrenalin",
+              "D) Thyroxin"
+            ], answer: "B) Erythropoetin" }
+          ]
+        }
+      ],
+      "Pathologie": [
+        { name: "Infektionen", 
+          quizQuestions: [
+            { question: "Welche Aussagen zu Infektionen sind richtig? 1. Tuberkulose wird durch Mycobacterium tuberculosis verursacht. 2. Frühsommer-Meningoenzephalitis wird durch Zecken übertragen. 3. Windpocken werden durch das Varizella-Zoster-Virus verursacht. 4. Hepatitis A wird durch Bakterien übertragen. 5. Candida albicans kann Soor verursachen.", options: [
+              "A) Nur die Aussagen 1, 2, 3 und 5 sind richtig",
+              "B) Nur die Aussagen 1 und 3 sind richtig",
+              "C) Alle Aussagen sind richtig",
+              "D) Nur die Aussagen 2 und 4 sind richtig"
+            ], answer: "A) Nur die Aussagen 1, 2, 3 und 5 sind richtig" },
+            { question: "Welche Erkrankung wird durch Zecken übertragen? Beschreiben Sie die Impfprophylaxe und die Symptome.", options: [
+              "A) FSME; Impfung verfügbar, Fieber und neurologische Symptome",
+              "B) Tuberkulose; keine Impfung, Husten und Fieber",
+              "C) Hepatitis A; Impfung verfügbar, Gelbsucht",
+              "D) Tetanus; Impfung nicht möglich, Muskelkrämpfe"
+            ], answer: "A) FSME; Impfung verfügbar, Fieber und neurologische Symptome" },
+            { question: "Welches Bakterium verursacht Tetanus? Wie wird es übertragen, und welche Vorsorgemaßnahmen gibt es?", options: [
+              "A) Clostridium tetani; Wundinfektion, Impfung",
+              "B) Streptococcus pneumoniae; Tröpfcheninfektion, Antibiotika",
+              "C) Escherichia coli; Nahrung, Hygiene",
+              "D) Staphylococcus aureus; Hautkontakt, Desinfektion"
+            ], answer: "A) Clostridium tetani; Wundinfektion, Impfung" }
+          ],
+          practiceQuestions: [
+            { question: "Welche Krankheit wird durch Mycobacterium tuberculosis verursacht?", options: ["Tuberkulose", "Grippe", "Hepatitis", "Pneumonie"], answer: "Tuberkulose" },
+            { question: "Welches Virus verursacht Windpocken?", options: [
+              "A) Herpes-simplex-Virus",
+              "B) Varizella-Zoster-Virus",
+              "C) Epstein-Barr-Virus",
+              "D) Hepatitis-B-Virus"
+            ], answer: "B) Varizella-Zoster-Virus" },
+            { question: "Welche Infektion wird durch Candida albicans verursacht?", options: [
+              "A) Soor",
+              "B) Tuberkulose",
+              "C) Tetanus",
+              "D) Hepatitis"
+            ], answer: "A) Soor" }
+          ]
+        },
+        { name: "Herzkrankheiten", 
+          quizQuestions: [
+            { question: "Welche Aussagen zu Herzkrankheiten sind richtig? 1. Ein Herzinfarkt wird oft durch einen Verschluss der Koronararterien verursacht. 2. Myokarditis kann in eine dilatative Kardiomyopathie übergehen. 3. Herzinsuffizienz führt typischerweise zu Atemnot. 4. Endokarditis betrifft die Herzklappen. 5. Bluthochdruck ist keine Ursache für Herzkrankheiten.", options: [
+              "A) Nur die Aussagen 1, 2, 3 und 4 sind richtig",
+              "B) Nur die Aussagen 1 und 3 sind richtig",
+              "C) Alle Aussagen sind richtig",
+              "D) Nur die Aussagen 2 und 5 sind richtig"
+            ], answer: "A) Nur die Aussagen 1, 2, 3 und 4 sind richtig" },
+            { question: "Beschreiben Sie die Diagnostik eines Herzinfarkts. Welche Untersuchung wird primär eingesetzt?", options: [
+              "A) EKG, Bluttests (Troponin), Koronarangiographie",
+              "B) Ultraschall, Röntgen, Blutdruckmessung",
+              "C) MRT, EEG, Blutanalyse",
+              "D) CT, Koloskopie, Biopsie"
+            ], answer: "A) EKG, Bluttests (Troponin), Koronarangiographie" },
+            { question: "Welche Symptome weisen auf eine Herzinsuffizienz hin? Wie wird Bluthochdruck als Risikofaktor behandelt?", options: [
+              "A) Atemnot, Ödeme; Betablocker, ACE-Hemmer",
+              "B) Haarausfall, Juckreiz; Antibiotika",
+              "C) Magenschmerzen, Fieber; Schmerzmittel",
+              "D) Husten, Hautausschlag; Antihistaminika"
+            ], answer: "A) Atemnot, Ödeme; Betablocker, ACE-Hemmer" }
+          ],
+          practiceQuestions: [
+            { question: "Was ist die häufigste Herzkrankheit?", options: ["Arrhythmie", "Herzinfarkt", "Kardiomyopathie", "Herzklappenfehler"], answer: "Herzinfarkt" },
+            { question: "Welche Untersuchung wird bei Verdacht auf Herzinfarkt oft eingesetzt?", options: [
+              "A) Ultraschall",
+              "B) EKG",
+              "C) CT",
+              "D) MRT"
+            ], answer: "B) EKG" },
+            { question: "Was ist ein typisches Symptom der Herzinsuffizienz?", options: [
+              "A) Atemnot",
+              "B) Haarausfall",
+              "C) Magenschmerzen",
+              "D) Juckreiz"
+            ], answer: "A) Atemnot" }
+          ]
+        },
+        { name: "Leberkrankheiten", 
+          quizQuestions: [
+            { question: "Welche Aussagen zu Lebererkrankungen sind richtig? 1. Leberzirrhose kann durch chronischen Alkoholkonsum verursacht werden. 2. Hepatitis C wird durch das HCV-Virus übertragen. 3. Gelbsucht ist ein typisches Symptom der Leberzirrhose. 4. Eine Leberbiopsie ist für die Diagnostik nicht relevant. 5. AST ist ein Laborwert, der auf Lebererkrankungen hinweist.", options: [
+              "A) Nur die Aussagen 1, 2, 3 und 5 sind richtig",
+              "B) Nur die Aussagen 1 und 3 sind richtig",
+              "C) Alle Aussagen sind richtig",
+              "D) Nur die Aussagen 2 und 4 sind richtig"
+            ], answer: "A) Nur die Aussagen 1, 2, 3 und 5 sind richtig" },
+            { question: "Welche Ursachen führen zu Hepatitis? Welche diagnostische Methode wird häufig bei Lebererkrankungen eingesetzt?", options: [
+              "A) Viren, Alkohol, Toxine; Leberbiopsie",
+              "B) Bakterien, Stress; Röntgen",
+              "C) Parasiten, Rauchen; EEG",
+              "D) Strahlung, Bewegungsmangel; Koloskopie"
+            ], answer: "A) Viren, Alkohol, Toxine; Leberbiopsie" },
+            { question: "Welche Symptome deuten auf eine Leberzirrhose hin? Wie wird sie behandelt?", options: [
+              "A) Gelbsucht, Aszites; Lebensstiländerung, Medikamente",
+              "B) Fieber, Husten; Antibiotika",
+              "C) Haarausfall, Juckreiz; Schmerzmittel",
+              "D) Gelenkschmerzen, Hautausschlag; Antihistaminika"
+            ], answer: "A) Gelbsucht, Aszites; Lebensstiländerung, Medikamente" }
+          ],
+          practiceQuestions: [
+            { question: "Welche Lebererkrankung wird oft durch Alkohol verursacht?", options: ["Hepatitis A", "Fettleber", "Zirrhose", "Leberkrebs"], answer: "Zirrhose" },
+            { question: "Welches Virus verursacht Hepatitis C?", options: [
+              "A) HAV",
+              "B) HBV",
+              "C) HCV",
+              "D) HDV"
+            ], answer: "C) HCV" },
+            { question: "Was ist ein Symptom der Leberzirrhose?", options: [
+              "A) Gelbsucht",
+              "B) Haarausfall",
+              "C) Fieber",
+              "D) Husten"
+            ], answer: "A) Gelbsucht" }
+          ]
+        }
+      ],
+      "Heilpflanzen": [
+        { name: "Kamille", 
+          quizQuestions: [
+            { question: "Welche Aussagen zur Kamille sind richtig? 1. Kamille wirkt entzündungshemmend durch Chamazulen. 2. Sie wird häufig als Tee verwendet. 3. Kamille wird für Hautentzündungen äußerlich angewendet. 4. Die Wurzeln der Kamille werden hauptsächlich genutzt. 5. Kamille hat keine Wirkung auf den Verdauungstrakt.", options: [
+              "A) Nur die Aussagen 1, 2 und 3 sind richtig",
+              "B) Nur die Aussagen 1 und 4 sind richtig",
+              "C) Alle Aussagen sind richtig",
+              "D) Nur die Aussagen 2 und 5 sind richtig"
+            ], answer: "A) Nur die Aussagen 1, 2 und 3 sind richtig" },
+            { question: "Welche Wirkungen hat Kamille? Für welche Beschwerden wird sie eingesetzt?", options: [
+              "A) Entzündungshemmend, beruhigend; Magenbeschwerden, Hautentzündungen",
+              "B) Stimulierend, schmerzlindernd; Kopfschmerzen, Gelenkschmerzen",
+              "C) Hustenstillend, fiebersenkend; Husten, Fieber",
+              "D) Blutdrucksenkend, immunstärkend; Bluthochdruck, Infektionen"
+            ], answer: "A) Entzündungshemmend, beruhigend; Magenbeschwerden, Hautentzündungen" },
+            { question: "Welche Pflanzenteile der Kamille werden genutzt? Wie wird sie typischerweise angewendet?", options: [
+              "A) Blüten; Tee, Salbe",
+              "B) Wurzeln; Tabletten, Injektion",
+              "C) Blätter; Sirup, Inhalation",
+              "D) Stängel; Kapseln, Tropfen"
+            ], answer: "A) Blüten; Tee, Salbe" }
+          ],
+          practiceQuestions: [
+            { question: "Wogegen wird Kamille oft eingesetzt?", options: ["Magenbeschwerden", "Husten", "Schlaflosigkeit", "Herzprobleme"], answer: "Magenbeschwerden" },
+            { question: "Welche Wirkung hat Kamille primär?", options: [
+              "A) Entzündungshemmend",
+              "B) Schmerzlindernd",
+              "C) Hustenstillend",
+              "D) Stimulierend"
+            ], answer: "A) Entzündungshemmend" },
+            { question: "In welcher Form wird Kamille oft angewendet?", options: [
+              "A) Tee",
+              "B) Tabletten",
+              "C) Injektion",
+              "D) Sirup"
+            ], answer: "A) Tee" }
+          ]
+        },
+        { name: "Johanniskraut", 
+          quizQuestions: [
+            { question: "Welche Aussagen zu Johanniskraut sind richtig? 1. Johanniskraut wird bei Depressionen eingesetzt. 2. Hypericin ist ein Wirkstoff in Johanniskraut. 3. Es kann Photosensibilität als Nebenwirkung verursachen. 4. Johanniskraut interagiert nicht mit anderen Medikamenten. 5. Es wird oft in Kapselform eingenommen.", options: [
+              "A) Nur die Aussagen 1, 2, 3 und 5 sind richtig",
+              "B) Nur die Aussagen 1 und 3 sind richtig",
+              "C) Alle Aussagen sind richtig",
+              "D) Nur die Aussagen 2 und 4 sind richtig"
+            ], answer: "A) Nur die Aussagen 1, 2, 3 und 5 sind richtig" },
+            { question: "Welche Wirkungen hat Johanniskraut? Mit welchen Medikamenten kann es interagieren?", options: [
+              "A) Antidepressiv, wundheilend; Antidepressiva, Antibiotika",
+              "B) Schmerzlindernd, entzündungshemmend; Schmerzmittel, Antihistaminika",
+              "C) Blutdrucksenkend, immunstärkend; Betablocker, Diuretika",
+              "D) Hustenstillend, fiebersenkend; Hustenmittel, Analgetika"
+            ], answer: "A) Antidepressiv, wundheilend; Antidepressiva, Antibiotika" },
+            { question: "Welche Nebenwirkungen hat Johanniskraut? Wie wird es typischerweise angewendet?", options: [
+              "A) Photosensibilität; Kapseln, Salbe",
+              "B) Hypotonie; Tee, Injektion",
+              "C) Hyperglykämie; Sirup, Tropfen",
+              "D) Anämie; Tabletten, Inhalation"
+            ], answer: "A) Photosensibilität; Kapseln, Salbe" }
+          ],
+          practiceQuestions: [
+            { question: "Wofür wird Johanniskraut genutzt?", options: ["Depressionen", "Magenbeschwerden", "Infektionen", "Herzkrankheiten"], answer: "Depressionen" },
+            { question: "Welche Nebenwirkung kann Johanniskraut haben?", options: [
+              "A) Photosensibilität",
+              "B) Hypotonie",
+              "C) Hyperglykämie",
+              "D) Anämie"
+            ], answer: "A) Photosensibilität" },
+            { question: "Welcher Wirkstoff ist in Johanniskraut enthalten?", options: [
+              "A) Hypericin",
+              "B) Koffein",
+              "C) Salicin",
+              "D) Menthol"
+            ], answer: "A) Hypericin" }
+          ]
+        },
+        { name: "Eibisch", 
+          quizQuestions: [
+            { question: "Welche Aussagen zu Eibisch sind richtig? 1. Eibisch wirkt beruhigend durch Schleimstoffe. 2. Die Wurzel wird hauptsächlich genutzt. 3. Eibisch wird bei Hautreizungen angewendet. 4. Eibisch hat keine Wirkung auf Schleimhäute. 5. Es wird oft als Tee verwendet.", options: [
+              "A) Nur die Aussagen 1, 2, 3 und 5 sind richtig",
+              "B) Nur die Aussagen 1 und 3 sind richtig",
+              "C) Alle Aussagen sind richtig",
+              "D) Nur die Aussagen 2 und 4 sind richtig"
+            ], answer: "A) Nur die Aussagen 1, 2, 3 und 5 sind richtig" },
+            { question: "Welche Wirkungen hat Eibisch? Für welche Beschwerden wird er eingesetzt?", options: [
+              "A) Beruhigend, schleimhautschützend; Hautreizungen, Mundschleimhautentzündung",
+              "B) Stimulierend, schmerzlindernd; Kopfschmerzen, Gelenkschmerzen",
+              "C) Hustenstillend, fiebersenkend; Husten, Fieber",
+              "D) Blutdrucksenkend, immunstärkend; Bluthochdruck, Infektionen"
+            ], answer: "A) Beruhigend, schleimhautschützend; Hautreizungen, Mundschleimhautentzündung" },
+            { question: "Welche Pflanzenteile des Eibischs werden genutzt? Wie wird er typischerweise angewendet?", options: [
+              "A) Wurzel; Tee, Salbe",
+              "B) Blüten; Tabletten, Injektion",
+              "C) Blätter; Sirup, Inhalation",
+              "D) Stängel; Kapseln, Tropfen"
+            ], answer: "A) Wurzel; Tee, Salbe" }
+          ],
+          practiceQuestions: [
+            { question: "Welche Wirkung hat Eibisch?", options: ["Beruhigend", "Entzündungshemmend", "Schmerzlindernd", "Hustenstillend"], answer: "Beruhigend" },
+            { question: "Für welche Beschwerden wird Eibisch häufig verwendet?", options: [
+              "A) Hautreizungen",
+              "B) Kopfschmerzen",
+              "C) Gelenkschmerzen",
+              "D) Bluthochdruck"
+            ], answer: "A) Hautreizungen" },
+            { question: "Welcher Pflanzenteil des Eibischs wird meist genutzt?", options: [
+              "A) Blätter",
+              "B) Wurzel",
+              "C) Blüten",
+              "D) Stängel"
+            ], answer: "B) Wurzel" }
+          ]
+        }
+      ],
+      "Gesetzeskunde": [
+        { name: "Heilpraktikergesetz", 
+          quizQuestions: [
+            { question: "Welche Aussagen zum Heilpraktikergesetz sind richtig? 1. Das Heilpraktikergesetz regelt die Berufsausübung. 2. Heilpraktiker müssen Patientendokumentationen 10 Jahre aufbewahren. 3. § 630c BGB verpflichtet zur Patientenaufklärung. 4. Heilpraktiker dürfen Medikamente verschreiben. 5. Die Patientenakte ist auf Verlangen einsehbar.", options: [
+              "A) Nur die Aussagen 1, 2, 3 und 5 sind richtig",
+              "B) Nur die Aussagen 1 und 3 sind richtig",
+              "C) Alle Aussagen sind richtig",
+              "D) Nur die Aussagen 2 und 4 sind richtig"
+            ], answer: "A) Nur die Aussagen 1, 2, 3 und 5 sind richtig" },
+            { question: "Was regelt § 630c BGB? Wann darf ein Heilpraktiker die Einsicht in die Patientenakte verweigern?", options: [
+              "A) Patientenaufklärung und Einwilligung; bei therapeutischen Gründen",
+              "B) Abrechnung; bei Nichtbezahlung",
+              "C) Medikamentenverschreibung; nie",
+              "D) Impfungen; immer"
+            ], answer: "A) Patientenaufklärung und Einwilligung; bei therapeutischen Gründen" },
+            { question: "Welche Rechtsquellen sind für Heilpraktiker relevant? Welche Dokumentationspflichten bestehen?", options: [
+              "A) Heilpraktikergesetz, BGB; 10 Jahre Aufbewahrung",
+              "B) Strafgesetzbuch, Grundgesetz; 5 Jahre Aufbewahrung",
+              "C) Infektionsschutzgesetz, BGB; keine Aufbewahrung",
+              "D) Arbeitsrecht, Handelsrecht; 15 Jahre Aufbewahrung"
+            ], answer: "A) Heilpraktikergesetz, BGB; 10 Jahre Aufbewahrung" }
+          ],
+          practiceQuestions: [
+            { question: "Welche Rechtsquelle gilt primär für Heilpraktiker?", options: ["BGB", "HP-Gesetz", "Strafgesetzbuch", "Grundgesetz"], answer: "HP-Gesetz" },
+            { question: "Wie lange muss ein Heilpraktiker die Patientendokumentation aufbewahren?", options: [
+              "A) 5 Jahre",
+              "B) 10 Jahre",
+              "C) 15 Jahre",
+              "D) 20 Jahre"
+            ], answer: "B) 10 Jahre" },
+            { question: "Was regelt § 630c BGB?", options: [
+              "A) Abrechnung",
+              "B) Patientenaufklärung",
+              "C) Behandlungsverbote",
+              "D) Berufsausübung"
+            ], answer: "B) Patientenaufklärung" }
+          ]
+        },
+        { name: "Infektionsschutzgesetz", 
+          quizQuestions: [
+            { question: "Welche Aussagen zum Infektionsschutzgesetz (IfSG) sind richtig? 1. Das IfSG regelt Hygienevorschriften in der Praxis. 2. Meldepflichtige Krankheiten müssen dem Gesundheitsamt gemeldet werden. 3. Tuberkulose ist eine meldepflichtige Krankheit. 4. Heilpraktiker dürfen Impfungen durchführen. 5. Das Gesundheitsamt überwacht die Einhaltung des IfSG.", options: [
+              "A) Nur die Aussagen 1, 2, 3 und 5 sind richtig",
+              "B) Nur die Aussagen 1 und 3 sind richtig",
+              "C) Alle Aussagen sind richtig",
+              "D) Nur die Aussagen 2 und 4 sind richtig"
+            ], answer: "A) Nur die Aussagen 1, 2, 3 und 5 sind richtig" },
+            { question: "Welche Maßnahmen fallen unter das Infektionsschutzgesetz? Wer überwacht die Einhaltung?", options: [
+              "A) Meldepflicht für Infektionskrankheiten; Gesundheitsamt",
+              "B) Registrierung von Heilpraktikern; Ärztekammer",
+              "C) Abrechnung mit Krankenkassen; Krankenkassen",
+              "D) Ausstellung von Rezepten; Bundesministerium"
+            ], answer: "A) Meldepflicht für Infektionskrankheiten; Gesundheitsamt" },
+            { question: "Welche Krankheiten sind nach dem IfSG meldepflichtig? Welche Rolle spielt das Gesundheitsamt?", options: [
+              "A) Tuberkulose, FSME; Überwachung und Kontaktverfolgung",
+              "B) Erkältung, Migräne; Behandlungsvorgaben",
+              "C) Rückenschmerzen, Allergien; Dokumentation",
+              "D) Diabetes, Bluthochdruck; Medikamentenverschreibung"
+            ], answer: "A) Tuberkulose, FSME; Überwachung und Kontaktverfolgung" }
+          ],
+          practiceQuestions: [
+            { question: "Was regelt das Infektionsschutzgesetz?", options: ["Hygiene", "Krankenbehandlung", "Medikamente", "Versicherung"], answer: "Hygiene" },
+            { question: "Welche Maßnahme fällt unter das Infektionsschutzgesetz?", options: [
+              "A) Registrierung von Heilpraktikern",
+              "B) Meldepflicht für Infektionskrankheiten",
+              "C) Abrechnung mit Krankenkassen",
+              "D) Ausstellung von Rezepten"
+            ], answer: "B) Meldepflicht für Infektionskrankheiten" },
+            { question: "Wer überwacht die Einhaltung des Infektionsschutzgesetzes?", options: [
+              "A) Gesundheitsamt",
+              "B) Ärztekammer",
+              "C) Krankenkassen",
+              "D) Bundesministerium"
+            ], answer: "A) Gesundheitsamt" }
+          ]
+        },
+        { name: "Patientenrechte", 
+          quizQuestions: [
+            { question: "Welche Aussagen zu Patientenrechten sind richtig? 1. Patienten haben ein Recht auf Einsicht in ihre Patientenakte. 2. Heilpraktiker müssen Patienten über Behandlungsrisiken aufklären. 3. Eine Einwilligung ist für jede Behandlung erforderlich. 4. Patienten haben kein Recht auf eine Zweitmeinung. 5. Das Behandlungsvertragsrecht ist im BGB geregelt.", options: [
+              "A) Nur die Aussagen 1, 2, 3 und 5 sind richtig",
+              "B) Nur die Aussagen 1 und 3 sind richtig",
+              "C) Alle Aussagen sind richtig",
+              "D) Nur die Aussagen 2 und 4 sind richtig"
+            ], answer: "A) Nur die Aussagen 1, 2, 3 und 5 sind richtig" },
+            { question: "Was regelt § 630e BGB? Welche Konsequenzen hat eine fehlende Aufklärung?", options: [
+              "A) Behandlungsfehler; Haftung des Heilpraktikers",
+              "B) Patientenaufklärung; Haftung bei fehlender Einwilligung",
+              "C) Abrechnung; Rückerstattung",
+              "D) Dokumentation; Geldstrafe"
+            ], answer: "B) Patientenaufklärung; Haftung bei fehlender Einwilligung" },
+            { question: "Welche Rechte hat ein Patient bei einer Behandlung? Wie wird die Einwilligung dokumentiert?", options: [
+              "A) Aufklärung, Einsicht, Zweitmeinung; schriftlich oder elektronisch",
+              "B) Abrechnung, Diagnosestellung; mündlich",
+              "C) Operation, Medikation; nicht erforderlich",
+              "D) Impfung, Therapie; nur mündlich"
+            ], answer: "A) Aufklärung, Einsicht, Zweitmeinung; schriftlich oder elektronisch" }
+          ],
+          practiceQuestions: [
+            { question: "Haben Patienten ein Recht auf Einsicht in ihre Akte?", options: ["Ja", "Nein", "Nur mit Gerichtsbeschluss", "Nur bei Behandlungsfehlern"], answer: "Ja" },
+            { question: "Was ist vor jeder Behandlung erforderlich?", options: [
+              "A) Einwilligung",
+              "B) Abrechnung",
+              "C) Impfung",
+              "D) Diagnose"
+            ], answer: "A) Einwilligung" },
+            { question: "Was regelt das BGB für Heilpraktiker?", options: [
+              "A) Berufsausübung",
+              "B) Behandlungsvertragsrecht",
+              "C) Impfpflicht",
+              "D) Hygienevorschriften"
+            ], answer: "B) Behandlungsvertragsrecht" }
+          ]
+        }
+      ]
+    };
+
+    const tabs = document.querySelectorAll('.tab');
+    const welcomeEl = document.getElementById('welcome');
+    const topicsContainer = document.getElementById('topics');
+    const quizContainer = document.getElementById('quizContainer');
+    const questionEl = document.getElementById('question');
+    const optionsEl = document.getElementById('options');
+    const nextBtn = document.getElementById('nextBtn');
+    const backBtn = document.getElementById('backBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const toggleDark = document.getElementById('toggleDark');
+    const quizModeBtn = document.getElementById('quizModeBtn');
+    const questionModeBtn = document.getElementById('questionModeBtn');
+    const immediateFeedbackBtn = document.getElementById('immediateFeedbackBtn');
+    const delayedFeedbackBtn = document.getElementById('delayedFeedbackBtn');
+    let currentTopic = 'Anatomie';
+    let currentSubTopic = null;
+    let currentQuestions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let answers = [];
+    let mode = 'quiz';
+    let feedback = 'immediate';
+
+    window.addEventListener('DOMContentLoaded', () => {
+      welcomeEl.style.display = 'block';
+      setTimeout(() => {
+        welcomeEl.style.display = 'none';
+        showSubTopics(currentTopic);
+      }, 3500);
+    });
+
+    toggleDark.addEventListener('click', () => {
+      document.body.classList.toggle('light');
+    });
+
+    quizModeBtn.addEventListener('click', () => {
+      mode = 'quiz';
+      quizModeBtn.classList.add('active');
+      questionModeBtn.classList.remove('active');
+      if (currentSubTopic) {
+        startQuiz(currentSubTopic);
+      } else {
+        showSubTopics(currentTopic);
+      }
+    });
+
+    questionModeBtn.addEventListener('click', () => {
+      mode = 'question';
+      questionModeBtn.classList.add('active');
+      quizModeBtn.classList.remove('active');
+      if (currentSubTopic) {
+        startQuiz(currentSubTopic);
+      } else {
+        showSubTopics(currentTopic);
+      }
+    });
+
+    immediateFeedbackBtn.addEventListener('click', () => {
+      feedback = 'immediate';
+      immediateFeedbackBtn.classList.add('active');
+      delayedFeedbackBtn.classList.remove('active');
+      if (currentSubTopic && answers[currentQuestionIndex]) {
+        updateFeedbackDisplay();
+      }
+    });
+
+    delayedFeedbackBtn.addEventListener('click', () => {
+      feedback = 'delayed';
+      delayedFeedbackBtn.classList.add('active');
+      immediateFeedbackBtn.classList.remove('active');
+      if (currentSubTopic && answers[currentQuestionIndex]) {
+        updateFeedbackDisplay();
+      }
+    });
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentTopic = tab.dataset.topic;
+        showSubTopics(currentTopic);
+      });
+    });
+
+    function showSubTopics(topic) {
+      topicsContainer.innerHTML = '';
+      quizContainer.classList.remove('show');
+      const subtopics = allTopics[topic] || [];
+      subtopics.forEach((st, index) => {
+        const btn = document.createElement('button');
+        btn.textContent = st.name;
+        btn.className = 'topic-btn';
+        btn.setAttribute('aria-label', `Starte ${mode === 'quiz' ? 'Quiz' : 'Fragen'} zu ${st.name}`);
+        btn.addEventListener('click', () => startQuiz(st));
+        topicsContainer.appendChild(btn);
+        setTimeout(() => btn.classList.add('show'), 100 * index);
+      });
+    }
+
+    function startQuiz(subTopic) {
+      currentSubTopic = subTopic;
+      const questionsKey = mode === 'quiz' ? 'quizQuestions' : 'practiceQuestions';
+      currentQuestions = mode === 'quiz' ? shuffle([...subTopic[questionsKey]]) : subTopic[questionsKey];
+      currentQuestionIndex = 0;
+      score = 0;
+      answers = [];
+      topicsContainer.innerHTML = '';
+      quizContainer.classList.add('show');
+      backBtn.hidden = false;
+      restartBtn.hidden = true;
+      loadQuestion();
+    }
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function loadQuestion() {
+      const q = currentQuestions[currentQuestionIndex];
+      questionEl.textContent = q.question;
+      const options = mode === 'quiz' ? shuffle([...q.options]) : q.options;
+      optionsEl.innerHTML = '';
+      nextBtn.hidden = true;
+      options.forEach((opt, index) => {
+        const btn = document.createElement('button');
+        btn.textContent = opt;
+        btn.setAttribute('aria-label', `Antwort: ${opt}`);
+        btn.style.animationDelay = `${index * 0.1}s`;
+        btn.classList.add('option-btn');
+        btn.addEventListener('click', () => selectAnswer(btn, q.answer));
+        optionsEl.appendChild(btn);
+      });
+      if (feedback === 'immediate' && answers[currentQuestionIndex]) {
+        updateFeedbackDisplay();
+      }
+    }
+
+    function selectAnswer(btn, correct) {
+      const buttons = optionsEl.querySelectorAll('button');
+      buttons.forEach(b => b.disabled = true);
+      const selected = btn.textContent;
+      answers[currentQuestionIndex] = { selected, correct };
+      if (feedback === 'immediate') {
+        if (selected === correct) {
+          btn.classList.add('correct');
+          score++;
+        } else {
+          btn.classList.add('wrong');
+          buttons.forEach(b => {
+            if (b.textContent === correct) b.classList.add('correct');
+          });
+        }
+      }
+      nextBtn.hidden = false;
+    }
+
+    function updateFeedbackDisplay() {
+      const buttons = optionsEl.querySelectorAll('button');
+      buttons.forEach(b => {
+        b.classList.remove('correct', 'wrong');
+        if (feedback === 'immediate' && answers[currentQuestionIndex]) {
+          if (b.textContent === answers[currentQuestionIndex].selected) {
+            b.classList.add(answers[currentQuestionIndex].selected === answers[currentQuestionIndex].correct ? 'correct' : 'wrong');
+          } else if (b.textContent === answers[currentQuestionIndex].correct) {
+            b.classList.add('correct');
+          }
+        }
+      });
+    }
+
+    nextBtn.addEventListener('click', () => {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < currentQuestions.length) {
+        loadQuestion();
+      } else {
+        if (feedback === 'delayed') {
+          score = answers.reduce((acc, ans) => acc + (ans.selected === ans.correct ? 1 : 0), 0);
+          questionEl.textContent = `${mode === 'quiz' ? 'Quiz' : 'Fragen'} abgeschlossen! Du hast ${score} von ${currentQuestions.length} richtig.`;
+          optionsEl.innerHTML = '';
+          answers.forEach((ans, index) => {
+            const q = currentQuestions[index];
+            const div = document.createElement('div');
+            div.style.margin = '10px 0';
+            div.innerHTML = `<p><strong>${index + 1}: ${q.question}</strong><br>Deine Antwort: ${ans.selected}<br>Richtige Antwort: ${ans.correct}</p>`;
+            if (ans.selected === ans.correct) {
+              div.style.color = '#4caf50';
+            } else {
+              div.style.color = '#e53935';
+            }
+            optionsEl.appendChild(div);
+          });
+        } else {
+          questionEl.textContent = `${mode === 'quiz' ? 'Quiz' : 'Fragen'} abgeschlossen! Du hast ${score} von ${currentQuestions.length} richtig.`;
+          optionsEl.innerHTML = '';
+        }
+        nextBtn.hidden = true;
+        restartBtn.hidden = false;
+        backBtn.hidden = false;
+      }
+    });
+
+    restartBtn.addEventListener('click', () => {
+      startQuiz(currentSubTopic);
+    });
+
+    backBtn.addEventListener('click', () => {
+      quizContainer.classList.remove('show');
+      backBtn.hidden = true;
+      restartBtn.hidden = true;
+      showSubTopics(currentTopic);
+    });
+  </script>
+</body>
+</html>
