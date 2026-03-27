@@ -119,6 +119,10 @@
             z-index: 1000;
         }
 
+        /* Hilfsklassen für dynamischen Text */
+        .show-mobile { display: none; }
+        .show-desktop { display: inline; }
+
         /* Quiz UI */
         .progress-info { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 800; color: var(--accent); margin-bottom: 8px; text-transform: uppercase; }
         .progress-bar { height: 8px; background: var(--bg); border-radius: 10px; margin-bottom: 30px; border: 1px solid var(--border); overflow: hidden; }
@@ -128,18 +132,18 @@
         
         .options-list { display: grid; gap: 12px; }
         .option-btn { 
-            background: var(--tab-bg); border: 2px solid var(--border); padding: clamp(12px, 3vh, 20px) 18px; 
+            background: var(--tab-bg); border: 2px solid var(--border); padding: clamp(10px, 2.5vh, 18px) 18px; 
             border-radius: 16px; color: var(--text); text-align: left; 
-            font-size: clamp(0.9rem, 3.5vw, 1.1rem); cursor: pointer; font-weight: 600; width: 100%; 
+            font-size: clamp(0.85rem, 3.2vw, 1.05rem); cursor: pointer; font-weight: 600; width: 100%; 
             line-height: 1.2; word-wrap: break-word;
         }
         .option-btn.correct { background: #10b981 !important; color: white !important; border-color: #059669; }
         .option-btn.wrong { background: #ef4444 !important; color: white !important; border-color: #b91c1c; }
         
-        .next-btn { margin-top: 30px; background: var(--accent); color: white; border: none; padding: 18px 45px; border-radius: 14px; font-weight: 800; cursor: pointer; float: right; font-size: 0.9rem; }
+        .next-btn { margin-top: 25px; background: var(--accent); color: white; border: none; padding: 15px 40px; border-radius: 14px; font-weight: 800; cursor: pointer; float: right; font-size: 0.9rem; }
         .next-btn:disabled { display: none; }
 
-        /* Mobile Adjustments */
+        /* Mobile Anpassungen */
         @media (max-width: 1000px) {
             body { flex-direction: column; }
             .sidebar { width: 100%; height: auto; position: relative; padding: 20px; border-right: none; border-bottom: 2px solid var(--border); order: 2; }
@@ -147,14 +151,18 @@
             .container { padding: 25px; margin-top: 50px; width: 95%; }
             .theme-switch { position: absolute; top: 15px; right: 15px; padding: 8px 12px; }
             
+            /* Text-Wechsel Logik */
+            .show-mobile { display: inline; }
+            .show-desktop { display: none; }
+
             body.quiz-active .sidebar { display: none; }
             .next-btn { width: 100%; float: none; margin-top: 20px; }
         }
 
         @media (max-height: 750px) {
             .progress-bar { margin-bottom: 15px; }
-            h1 { margin-bottom: 15px; }
-            .option-btn { padding: 10px 15px; }
+            h1 { margin-bottom: 15px; font-size: 1.15rem; }
+            .option-btn { padding: 8px 15px; }
         }
     </style>
 </head>
@@ -184,7 +192,7 @@
             <div style="font-size: 4rem; margin-bottom: 20px;">📘</div>
             <h1>Grundwissen Heilpraktiker.</h1>
             <p style="color: var(--text-dim); margin-bottom: 40px; font-size: 1.2rem; line-height: 1.6;">
-                Bitte wählen Sie links eine Lerneinheit aus.
+                Bitte wählen Sie <span class="show-desktop">links</span><span class="show-mobile">unten</span> eine Lerneinheit aus.
             </p>
             <div style="padding: 25px; background: var(--tab-bg); border: 2px solid var(--border); border-radius: 20px;">
                 <b>Hinweis:</b> Nutzen Sie den Modus-Schalter oben rechts, um das Design an die Lichtverhältnisse im Raum anzupassen.
@@ -201,6 +209,7 @@
 </div>
 
 <script>
+// (Datenbank und Logik bleiben exakt identisch)
 const examDB = {
     "1. Herz & Kreislauf": [
         {q: "Welche Schicht des Herzens ist für die Kontraktion verantwortlich?", a: ["Endokard", "Myokard", "Epikard", "Perikard"], c: "Myokard"},
