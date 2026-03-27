@@ -2,8 +2,8 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Heilpraktiker Akademie Pro - High Contrast Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Heilpraktiker Akademie Pro</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
@@ -31,17 +31,18 @@
             --shadow: 0 10px 30px rgba(0,0,0,0.15);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg);
             color: var(--text);
             display: flex;
-            transition: background 0.3s ease, color 0.3s ease;
+            transition: background 0.3s ease;
             min-height: 100vh;
         }
 
+        /* Sidebar Desktop */
         .sidebar {
             width: 340px;
             background: var(--sidebar-bg);
@@ -79,33 +80,19 @@
             color: var(--text);
         }
 
-        .tab:hover {
-            border-color: var(--accent);
-            transform: scale(1.02);
-            background: var(--sidebar-bg);
-        }
+        .tab:hover { border-color: var(--accent); transform: scale(1.02); }
+        .tab.active { background: var(--accent); color: #ffffff; border-color: var(--accent); }
+        .tab-count { font-size: 0.75rem; background: rgba(0,0,0,0.2); padding: 4px 10px; border-radius: 8px; }
 
-        .tab.active {
-            background: var(--accent);
-            color: #ffffff;
-            border-color: var(--accent);
-            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
-        }
-
-        .tab-count {
-            font-size: 0.75rem;
-            background: rgba(0,0,0,0.2);
-            padding: 4px 10px;
-            border-radius: 8px;
-            color: white;
-        }
-
+        /* Main Content */
         .main {
             margin-left: 340px;
             flex: 1;
             padding: 60px 40px;
             display: flex;
             justify-content: center;
+            flex-direction: column;
+            align-items: center;
         }
 
         .container {
@@ -117,73 +104,6 @@
             box-shadow: var(--shadow);
             border: 1px solid var(--border);
         }
-
-        .progress-info {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            font-weight: 800;
-            color: var(--accent);
-            margin-bottom: 12px;
-            text-transform: uppercase;
-        }
-
-        .progress-bar {
-            height: 10px;
-            background: var(--bg);
-            border-radius: 20px;
-            margin-bottom: 50px;
-            border: 1px solid var(--border);
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--accent);
-            width: 0%;
-            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        h1 { font-size: 1.8rem; line-height: 1.4; margin-bottom: 40px; }
-
-        .options-list { display: grid; gap: 15px; }
-
-        .option-btn {
-            background: var(--tab-bg);
-            border: 2px solid var(--border);
-            padding: 22px;
-            border-radius: 16px;
-            color: var(--text);
-            text-align: left;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 600;
-            width: 100%;
-        }
-
-        .option-btn:hover:not(:disabled) {
-            border-color: var(--accent);
-            background: var(--bg);
-        }
-
-        .option-btn.correct { background: #10b981 !important; color: white !important; border-color: #059669; }
-        .option-btn.wrong { background: #ef4444 !important; color: white !important; border-color: #b91c1c; }
-
-        .next-btn {
-            margin-top: 40px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 18px 45px;
-            border-radius: 14px;
-            font-weight: 800;
-            cursor: pointer;
-            float: right;
-            box-shadow: 0 10px 20px rgba(2, 132, 199, 0.3);
-        }
-
-        .next-btn:disabled { opacity: 0; pointer-events: none; }
 
         .theme-switch {
             position: fixed;
@@ -197,13 +117,33 @@
             cursor: pointer;
             font-weight: 800;
             z-index: 1000;
-            box-shadow: var(--shadow);
         }
 
+        /* Quiz UI */
+        .progress-info { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 800; color: var(--accent); margin-bottom: 12px; text-transform: uppercase; }
+        .progress-bar { height: 10px; background: var(--bg); border-radius: 20px; margin-bottom: 50px; border: 1px solid var(--border); overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.5s ease; }
+        h1 { font-size: 1.8rem; line-height: 1.4; margin-bottom: 40px; }
+        .options-list { display: grid; gap: 15px; }
+        .option-btn { background: var(--tab-bg); border: 2px solid var(--border); padding: 22px; border-radius: 16px; color: var(--text); text-align: left; font-size: 1.1rem; cursor: pointer; font-weight: 600; width: 100%; }
+        .option-btn.correct { background: #10b981 !important; color: white !important; border-color: #059669; }
+        .option-btn.wrong { background: #ef4444 !important; color: white !important; border-color: #b91c1c; }
+        .next-btn { margin-top: 40px; background: var(--accent); color: white; border: none; padding: 18px 45px; border-radius: 14px; font-weight: 800; cursor: pointer; float: right; }
+        .next-btn:disabled { display: none; }
+
+        /* Mobile Anpassungen */
         @media (max-width: 1000px) {
             body { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 2px solid var(--border); }
-            .main { margin-left: 0; padding: 20px; }
+            .sidebar { 
+                width: 100%; height: auto; position: relative; border-right: none; border-bottom: 2px solid var(--border); 
+                order: 2; /* Sidebar unter den Haupttext auf der Startseite */
+            }
+            .main { margin-left: 0; padding: 20px; order: 1; }
+            .container { padding: 30px; margin-top: 40px; }
+            .theme-switch { position: absolute; top: 15px; right: 15px; padding: 10px 15px; font-size: 0.8rem; }
+            
+            /* Wenn ein Quiz läuft, Sidebar ausblenden für mehr Platz */
+            body.quiz-active .sidebar { display: none; }
         }
     </style>
 </head>
@@ -211,7 +151,7 @@
 
 <button class="theme-switch" id="toggleMode">MODUS WECHSELN 🌓</button>
 
-<div class="sidebar">
+<div class="sidebar" id="sidebar">
     <h2>Lernblock</h2>
     <div id="navigation"></div>
 </div>
@@ -244,7 +184,7 @@
             <h1>Auswertung</h1>
             <div style="font-size: 5rem; font-weight: 800; color: var(--accent); margin: 30px 0;" id="score-val">0/10</div>
             <p id="feedback-text" style="font-size: 1.3rem; margin-bottom: 40px;"></p>
-            <button class="next-btn" style="float:none;" id="backToMenuBtn">HAUPTMENÜ</button>
+            <button class="next-btn" style="float:none;" id="backToMenuBtn">ZURÜCK ZUM HAUPTMENÜ</button>
         </div>
     </div>
 </div>
@@ -337,9 +277,7 @@ const examDB = {
     ]
 };
 
-let qIdx = 0;
-let score = 0;
-let currentCat = "";
+let qIdx = 0; let score = 0; let currentCat = "";
 
 function initNav() {
     const nav = document.getElementById('navigation');
@@ -352,8 +290,7 @@ function initNav() {
     }
 }
 
-// Fisher-Yates Shuffle für die Antworten
-function shuffleArray(array) {
+function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
@@ -362,16 +299,13 @@ function shuffleArray(array) {
 }
 
 function start(cat, element) {
-    currentCat = cat;
-    qIdx = 0; 
-    score = 0;
+    currentCat = cat; qIdx = 0; score = 0;
+    document.body.classList.add('quiz-active');
     document.getElementById('start-view').style.display = 'none';
     document.getElementById('result-screen').style.display = 'none';
     document.getElementById('quiz-view').style.display = 'block';
-    
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     if(element) element.classList.add('active');
-    
     loadQ();
 }
 
@@ -380,31 +314,23 @@ function loadQ() {
     const nextBtn = document.getElementById('nextBtn');
     nextBtn.disabled = true;
     nextBtn.innerText = qIdx === 9 ? "ZUR AUSWERTUNG" : "WEITER";
-    
     document.getElementById('category-name').innerText = currentCat;
     document.getElementById('question-counter').innerText = `${qIdx + 1} / 10`;
     document.getElementById('p-fill').style.width = ((qIdx + 1) / 10 * 100) + "%";
     document.getElementById('q-text').innerText = q.q;
     
-    // Shuffle der Antworten für diese Runde
-    const shuffledAnswers = shuffleArray([...q.a]);
-    
+    const shuffledA = shuffle([...q.a]);
     const opts = document.getElementById('options');
     opts.innerHTML = '';
-    
-    shuffledAnswers.forEach((txt) => {
+    shuffledA.forEach(txt => {
         const b = document.createElement('button');
         b.className = 'option-btn';
         b.innerText = txt;
         b.onclick = () => {
             document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
-            // Wir prüfen gegen den Text der richtigen Antwort (q.c ist jetzt der Text)
-            if(txt === q.c) { 
-                b.classList.add('correct'); 
-                score++; 
-            } else { 
+            if(txt === q.c) { b.classList.add('correct'); score++; }
+            else { 
                 b.classList.add('wrong'); 
-                // Markiere die richtige Antwort (finde den Button mit dem richtigen Text)
                 document.querySelectorAll('.option-btn').forEach(btn => {
                     if(btn.innerText === q.c) btn.classList.add('correct');
                 });
@@ -416,10 +342,8 @@ function loadQ() {
 }
 
 document.getElementById('nextBtn').onclick = () => {
-    if(qIdx < 9) { 
-        qIdx++; 
-        loadQ(); 
-    } else {
+    if(qIdx < 9) { qIdx++; loadQ(); }
+    else {
         document.getElementById('quiz-view').style.display = 'none';
         document.getElementById('result-screen').style.display = 'block';
         document.getElementById('score-val').innerText = `${score}/10`;
@@ -429,14 +353,11 @@ document.getElementById('nextBtn').onclick = () => {
     }
 };
 
-// Reset-Funktion für das Hauptmenü
 document.getElementById('backToMenuBtn').onclick = () => {
+    document.body.classList.remove('quiz-active');
     document.getElementById('result-screen').style.display = 'none';
-    document.getElementById('quiz-view').style.display = 'none';
     document.getElementById('start-view').style.display = 'block';
-    // Entferne Markierung in der Sidebar
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    currentCat = "";
 };
 
 document.getElementById('toggleMode').onclick = () => {
