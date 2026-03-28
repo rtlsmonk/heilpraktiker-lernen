@@ -17,6 +17,7 @@
             --tab-bg: #334155;
             --border: #475569;
             --shadow: 0 20px 50px rgba(0,0,0,0.5);
+            --btn-exit: #ef4444;
         }
 
         body.light {
@@ -29,6 +30,7 @@
             --tab-bg: #e2e8f0; 
             --border: #94a3b8; 
             --shadow: 0 10px 30px rgba(0,0,0,0.15);
+            --btn-exit: #dc2626;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -44,20 +46,20 @@
 
         /* Sidebar Desktop */
         .sidebar {
-            width: 320px;
+            width: 350px;
             background: var(--sidebar-bg);
             height: 100vh;
             position: fixed;
-            padding: 20px;
+            padding: 30px 25px;
             border-right: 2px solid var(--border);
             overflow-y: auto;
             z-index: 100;
         }
 
         .sidebar h2 {
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             font-weight: 800;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             color: var(--accent);
             text-transform: uppercase;
             letter-spacing: 2px;
@@ -65,11 +67,11 @@
         }
 
         .tab {
-            padding: 12px 15px;
-            border-radius: 10px;
+            padding: 15px 20px;
+            border-radius: 12px;
             cursor: pointer;
-            margin-bottom: 8px;
-            font-size: 0.85rem;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
             font-weight: 700;
             background: var(--tab-bg);
             border: 1px solid var(--border);
@@ -77,15 +79,16 @@
             justify-content: space-between;
             align-items: center;
             color: var(--text);
+            transition: transform 0.1s;
         }
-
+        .tab:active { transform: scale(0.98); }
         .tab.active { background: var(--accent); color: #ffffff; border-color: var(--accent); }
 
         /* Main Area */
         .main {
-            margin-left: 320px;
+            margin-left: 350px;
             flex: 1;
-            padding: 20px;
+            padding: 40px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -93,53 +96,56 @@
 
         .container {
             width: 100%;
-            max-width: 750px;
+            max-width: 850px; /* Breiter auf PC */
             background: var(--card-bg);
-            padding: 30px;
-            border-radius: 20px;
+            padding: 40px;
+            border-radius: 24px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border);
         }
 
+        /* Top Navigation */
         .top-nav {
             position: fixed;
-            top: 15px;
-            right: 15px;
+            top: 25px;
+            right: 25px;
             display: flex;
-            gap: 8px;
+            gap: 12px;
             z-index: 1000;
         }
 
         .nav-btn {
-            padding: 8px 14px;
-            border-radius: 8px;
+            padding: 10px 18px;
+            border-radius: 10px;
             background: var(--card-bg);
             color: var(--text);
             border: 2px solid var(--border);
             cursor: pointer;
             font-weight: 800;
-            font-size: 0.7rem;
+            font-size: 0.8rem;
+            transition: all 0.2s;
         }
+        .nav-btn:hover { border-color: var(--accent); }
 
         /* Question Picker */
         .question-picker {
             display: flex;
-            gap: 5px;
-            margin-bottom: 15px;
+            gap: 8px;
+            margin-bottom: 25px;
             flex-wrap: wrap;
             justify-content: center;
         }
 
         .q-dot {
-            width: 28px;
-            height: 28px;
+            width: 35px;
+            height: 35px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 6px;
+            border-radius: 8px;
             background: var(--tab-bg);
             border: 1px solid var(--border);
-            font-size: 0.75rem;
+            font-size: 0.9rem;
             font-weight: 800;
             cursor: not-allowed;
             opacity: 0.3;
@@ -148,37 +154,33 @@
         .q-dot.unlocked { cursor: pointer; opacity: 1; border-color: var(--accent); color: var(--accent); }
         .q-dot.active { background: var(--accent); color: white; border-color: var(--accent); }
 
-        /* Quiz Elements */
-        .progress-info { display: flex; justify-content: space-between; font-size: 0.7rem; font-weight: 800; color: var(--accent); margin-bottom: 5px; text-transform: uppercase; }
-        .progress-bar { height: 6px; background: var(--bg); border-radius: 10px; margin-bottom: 15px; border: 1px solid var(--border); overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; }
+        /* Quiz UI */
+        .progress-info { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 800; color: var(--accent); margin-bottom: 8px; text-transform: uppercase; }
+        .progress-bar { height: 10px; background: var(--bg); border-radius: 10px; margin-bottom: 25px; border: 1px solid var(--border); overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.4s; }
         
-        h1 { font-size: clamp(1rem, 3vw, 1.5rem); line-height: 1.3; margin-bottom: 15px; }
+        h1 { font-size: 1.8rem; line-height: 1.4; margin-bottom: 30px; }
         
-        .options-list { display: grid; gap: 8px; }
+        .options-list { display: grid; gap: 12px; }
         .option-btn { 
-            background: var(--tab-bg); border: 2px solid var(--border); padding: 12px 15px; 
-            border-radius: 12px; color: var(--text); text-align: left; 
-            font-size: 0.95rem; cursor: pointer; font-weight: 600; width: 100%; 
+            background: var(--tab-bg); border: 2px solid var(--border); padding: 18px 22px; 
+            border-radius: 16px; color: var(--text); text-align: left; 
+            font-size: 1.05rem; cursor: pointer; font-weight: 600; width: 100%; 
+            transition: background 0.2s;
         }
         .option-btn.correct { background: #10b981 !important; color: white !important; border-color: #059669; }
         .option-btn.wrong { background: #ef4444 !important; color: white !important; border-color: #b91c1c; }
         
-        .next-btn { margin-top: 15px; background: var(--accent); color: white; border: none; padding: 12px 30px; border-radius: 10px; font-weight: 800; cursor: pointer; float: right; font-size: 0.85rem; }
+        .next-btn { margin-top: 25px; background: var(--accent); color: white; border: none; padding: 15px 40px; border-radius: 14px; font-weight: 800; cursor: pointer; float: right; font-size: 0.95rem; }
         .next-btn:disabled { display: none; }
 
-        /* Der Beenden-Button (Fix für Light-Mode) */
+        /* Spezial Button Beenden */
         #finalHomeBtn {
-            background: #ef4444 !important; /* Kräftiges Rot */
+            background: var(--btn-exit) !important;
             color: white !important;
-            border: 2px solid #b91c1c !important;
-            opacity: 1 !important;
+            border: 2px solid rgba(0,0,0,0.1) !important;
             float: left;
-        }
-        body.light #finalHomeBtn {
-            background: #dc2626 !important;
-            border-color: #991b1b !important;
-            box-shadow: 0 4px 10px rgba(220, 38, 38, 0.2);
+            display: none;
         }
 
         .show-mobile { display: none; }
@@ -187,16 +189,24 @@
         @media (max-width: 1000px) {
             body { flex-direction: column; }
             .sidebar { width: 100%; height: auto; position: relative; padding: 15px; border-right: none; border-bottom: 2px solid var(--border); order: 2; }
-            .main { margin-left: 0; padding: 10px; order: 1; }
-            .container { padding: 15px; margin-top: 50px; width: 98%; border-radius: 15px; }
-            h1 { margin-bottom: 12px; font-size: 1.1rem; }
-            .option-btn { padding: 10px; font-size: 0.9rem; }
+            .main { margin-left: 0; padding: 10px; order: 1; min-height: auto; }
+            
+            /* Top Nav nicht mehr fixiert auf Mobile */
+            .top-nav { position: absolute; top: 15px; right: 10px; }
+            
+            .container { padding: 20px; margin-top: 65px; width: 96%; border-radius: 18px; }
+            h1 { margin-bottom: 15px; font-size: 1.2rem; }
+            .option-btn { padding: 12px 15px; font-size: 0.95rem; border-radius: 12px; }
             .show-mobile { display: inline; }
             .show-desktop { display: none; }
+            
             body.quiz-active .sidebar { display: none; }
-            .next-btn { width: 100%; float: none; margin-top: 10px; padding: 15px; }
-            #finalHomeBtn { width: 100%; margin-bottom: 10px; }
-            .question-picker { margin-bottom: 10px; }
+            .next-btn { width: 100%; float: none; margin-top: 15px; padding: 18px; }
+            #finalHomeBtn { width: 100%; margin-bottom: 10px; float: none; }
+            
+            .q-dot { width: 30px; height: 30px; font-size: 0.8rem; }
+            .question-picker { margin-bottom: 15px; gap: 5px; }
+            .progress-bar { margin-bottom: 15px; }
         }
     </style>
 </head>
@@ -215,9 +225,9 @@
 <div class="main">
     <div class="container">
         <div id="quiz-view" style="display: none;">
-            <div id="mini-result" style="display:none; text-align: center; border-bottom: 2px solid var(--border); margin-bottom: 10px; padding-bottom: 10px;">
-                <h2 style="color: var(--accent); font-size: 1.4rem;" id="mini-score">0/10</h2>
-                <p id="mini-feedback" style="font-size: 0.8rem; opacity: 0.8;"></p>
+            <div id="mini-result" style="display:none; text-align: center; border-bottom: 2px solid var(--border); margin-bottom: 15px; padding-bottom: 15px;">
+                <h2 style="color: var(--accent); font-size: 1.8rem;" id="mini-score">0/10</h2>
+                <p id="mini-feedback" style="font-size: 1rem; opacity: 0.9;"></p>
             </div>
 
             <div class="progress-info">
@@ -228,22 +238,22 @@
             
             <div class="question-picker" id="questionPicker"></div>
 
-            <h1 id="q-text">Frage wird geladen...</h1>
+            <h1 id="q-text">Lade Frage...</h1>
             <div class="options-list" id="options"></div>
             
-            <div style="margin-top: 15px;">
+            <div style="margin-top: 20px; overflow: hidden;">
                 <button class="next-btn" id="nextBtn" disabled>WEITER</button>
-                <button class="next-btn" id="finalHomeBtn" style="display:none;" onclick="goHome()">QUIZ BEENDEN</button>
+                <button class="next-btn" id="finalHomeBtn" onclick="goHome()">QUIZ BEENDEN</button>
             </div>
         </div>
 
         <div id="start-view" style="text-align: center;">
-            <div style="font-size: 3rem; margin-bottom: 15px;">📘</div>
+            <div style="font-size: 4rem; margin-bottom: 20px;">📘</div>
             <h1>Grundwissen Heilpraktiker.</h1>
-            <p style="color: var(--text-dim); margin-bottom: 25px; font-size: 1.1rem; line-height: 1.4;">
+            <p style="color: var(--text-dim); margin-bottom: 35px; font-size: 1.2rem; line-height: 1.6;">
                 Bitte wählen Sie <span class="show-desktop">links</span><span class="show-mobile">unten</span> eine Lerneinheit aus.
             </p>
-            <div style="padding: 20px; background: var(--tab-bg); border: 2px solid var(--border); border-radius: 15px; font-size: 0.9rem;">
+            <div style="padding: 25px; background: var(--tab-bg); border: 2px solid var(--border); border-radius: 20px;">
                 <b>Hinweis:</b> Nutzen Sie den Modus-Schalter oben rechts für optimales Licht.
             </div>
         </div>
@@ -251,7 +261,7 @@
 </div>
 
 <script>
-// (examDB bleibt exakt gleich wie vorher, gelöscht für die Übersicht in der Antwort)
+// EXAKTE DATENBANK (Wie vorher)
 const examDB = {
     "1. Herz & Kreislauf": [
         {q: "Welche Schicht des Herzens ist für die Kontraktion verantwortlich?", a: ["Endokard", "Myokard", "Epikard", "Perikard"], c: "Myokard"},
