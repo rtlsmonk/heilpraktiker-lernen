@@ -43,7 +43,6 @@
             overflow-x: hidden;
         }
 
-        /* Sidebar Desktop */
         .sidebar {
             width: 340px;
             background: var(--sidebar-bg);
@@ -84,7 +83,6 @@
         .tab.active { background: var(--accent); color: #ffffff; border-color: var(--accent); }
         .tab-count { font-size: 0.7rem; background: rgba(0,0,0,0.2); padding: 3px 8px; border-radius: 6px; }
 
-        /* Main Area */
         .main {
             margin-left: 340px;
             flex: 1;
@@ -104,7 +102,6 @@
             border: 1px solid var(--border);
         }
 
-        /* Top Navigation Buttons */
         .top-nav {
             position: fixed;
             top: 20px;
@@ -123,10 +120,8 @@
             cursor: pointer;
             font-weight: 800;
             font-size: 0.75rem;
-            transition: 0.2s;
         }
 
-        /* Question Switcher (Dots) */
         .question-picker {
             display: flex;
             gap: 6px;
@@ -153,7 +148,6 @@
         .q-dot.unlocked { cursor: pointer; opacity: 1; border-color: var(--accent); color: var(--accent); }
         .q-dot.active { background: var(--accent); color: white; border-color: var(--accent); }
 
-        /* Quiz UI */
         .progress-info { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 800; color: var(--accent); margin-bottom: 8px; text-transform: uppercase; }
         .progress-bar { height: 8px; background: var(--bg); border-radius: 10px; margin-bottom: 20px; border: 1px solid var(--border); overflow: hidden; }
         .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.4s ease; }
@@ -176,7 +170,6 @@
         .show-mobile { display: none; }
         .show-desktop { display: inline; }
 
-        /* Mobile Adjustments */
         @media (max-width: 1000px) {
             body { flex-direction: column; }
             .sidebar { width: 100%; height: auto; position: relative; padding: 20px; border-right: none; border-bottom: 2px solid var(--border); order: 2; }
@@ -205,6 +198,11 @@
 <div class="main">
     <div class="container">
         <div id="quiz-view" style="display: none;">
+            <div id="mini-result" style="display:none; text-align: center; border-bottom: 2px solid var(--border); margin-bottom: 20px; padding-bottom: 15px;">
+                <h2 style="color: var(--accent); font-size: 1.8rem;" id="mini-score">0/10</h2>
+                <p id="mini-feedback" style="font-size: 0.9rem; opacity: 0.8;"></p>
+            </div>
+
             <div class="progress-info">
                 <span id="category-name">Thema</span>
                 <span id="question-counter">01 / 10</span>
@@ -215,7 +213,11 @@
 
             <h1 id="q-text">Frage wird geladen...</h1>
             <div class="options-list" id="options"></div>
-            <button class="next-btn" id="nextBtn" disabled>WEITER</button>
+            
+            <div style="margin-top: 25px; overflow: hidden;">
+                <button class="next-btn" id="nextBtn" disabled>WEITER</button>
+                <button class="next-btn" id="finalHomeBtn" style="display:none; background: var(--tab-bg); border: 1px solid var(--border); float: left;" onclick="goHome()">BEENDEN</button>
+            </div>
         </div>
 
         <div id="start-view" style="text-align: center;">
@@ -225,21 +227,13 @@
                 Bitte wählen Sie <span class="show-desktop">links</span><span class="show-mobile">unten</span> eine Lerneinheit aus.
             </p>
             <div style="padding: 25px; background: var(--tab-bg); border: 2px solid var(--border); border-radius: 20px;">
-                <b>Hinweis:</b> Nutzen Sie den Modus-Schalter oben rechts, um das Design an die Lichtverhältnisse im Raum anzupassen.
+                <b>Hinweis:</b> Nutzen Sie den Modus-Schalter oben rechts für optimales Licht.
             </div>
-        </div>
-
-        <div id="result-screen" style="display: none; text-align: center;">
-            <h1>Auswertung</h1>
-            <div style="font-size: 5rem; font-weight: 800; color: var(--accent); margin: 30px 0;" id="score-val">0/10</div>
-            <p id="feedback-text" style="font-size: 1.3rem; margin-bottom: 40px;"></p>
-            <button class="next-btn" style="float:none;" onclick="goHome()">HAUPTMENÜ</button>
         </div>
     </div>
 </div>
 
 <script>
-// EXAKTE KOPIE DEINER FRAGEN UND TEXTE
 const examDB = {
     "1. Herz & Kreislauf": [
         {q: "Welche Schicht des Herzens ist für die Kontraktion verantwortlich?", a: ["Endokard", "Myokard", "Epikard", "Perikard"], c: "Myokard"},
@@ -327,8 +321,8 @@ const examDB = {
     ]
 };
 
-let qIdx = 0; let score = 0; let currentCat = "";
-let userAnswers = []; let maxReached = 0;
+let qIdx = 0; let currentCat = "";
+let userAnswers = []; let maxReached = 0; let isResultMode = false;
 
 function initNav() {
     const nav = document.getElementById('navigation');
@@ -350,17 +344,16 @@ function shuffle(array) {
 }
 
 function startQuiz(cat, element) {
-    currentCat = cat; qIdx = 0; score = 0; maxReached = 0;
+    currentCat = cat; qIdx = 0; maxReached = 0; isResultMode = false;
     userAnswers = new Array(10).fill(null);
     document.body.classList.add('quiz-active');
     document.getElementById('start-view').style.display = 'none';
-    document.getElementById('result-screen').style.display = 'none';
     document.getElementById('quiz-view').style.display = 'block';
+    document.getElementById('mini-result').style.display = 'none';
+    document.getElementById('finalHomeBtn').style.display = 'none';
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     if(element) element.classList.add('active');
-    
-    // Antworthauptliste mischen
-    examDB[currentCat].forEach(q => { if(!q.shuffled) q.shuffled = shuffle([...q.a]); });
+    examDB[currentCat].forEach(q => { q.shuffled = q.shuffled || shuffle([...q.a]); });
     loadQ();
 }
 
@@ -387,15 +380,20 @@ function loadQ() {
             if(txt === q.c) b.classList.add('correct');
             if(txt === userAnswers[qIdx] && txt !== q.c) b.classList.add('wrong');
             b.disabled = true;
-            nextBtn.disabled = false;
         } else {
             b.onclick = () => selectAnswer(txt, b);
         }
         opts.appendChild(b);
     });
 
-    nextBtn.innerText = qIdx === 9 ? "ZUR AUSWERTUNG" : "WEITER";
-    nextBtn.disabled = userAnswers[qIdx] === null;
+    if(isResultMode) {
+        nextBtn.style.display = "none";
+        document.getElementById('finalHomeBtn').style.display = "block";
+    } else {
+        nextBtn.style.display = "block";
+        nextBtn.innerText = qIdx === 9 ? "ZUR AUSWERTUNG" : "WEITER";
+        nextBtn.disabled = userAnswers[qIdx] === null;
+    }
 }
 
 function selectAnswer(txt, btn) {
@@ -408,7 +406,6 @@ function selectAnswer(txt, btn) {
         if(b.innerText === q.c) b.classList.add('correct');
     });
     if(txt !== q.c) btn.classList.add('wrong');
-    
     document.getElementById('nextBtn').disabled = false;
     updatePicker();
 }
@@ -420,7 +417,7 @@ function updatePicker() {
         const dot = document.createElement('div');
         dot.className = 'q-dot';
         dot.innerText = i+1;
-        if(i <= maxReached || userAnswers[i] !== null || i === qIdx) {
+        if(i <= maxReached || isResultMode) {
             dot.classList.add('unlocked');
             dot.onclick = () => { qIdx = i; loadQ(); };
         }
@@ -430,42 +427,35 @@ function updatePicker() {
 }
 
 document.getElementById('nextBtn').onclick = () => {
-    if(qIdx < 9) { 
-        qIdx++; 
-        if(qIdx > maxReached) maxReached = qIdx;
-        loadQ(); 
-    }
-    else showResults();
+    if(qIdx < 9) { qIdx++; if(qIdx > maxReached) maxReached = qIdx; loadQ(); }
+    else showFinalResults();
     window.scrollTo(0,0);
 };
 
-function showResults() {
+function showFinalResults() {
+    isResultMode = true;
     let finalScore = 0;
-    userAnswers.forEach((ans, i) => {
-        if(ans === examDB[currentCat][i].c) finalScore++;
-    });
+    userAnswers.forEach((ans, i) => { if(ans === examDB[currentCat][i].c) finalScore++; });
     
-    document.getElementById('quiz-view').style.display = 'none';
-    document.getElementById('result-screen').style.display = 'block';
-    document.getElementById('score-val').innerText = `${finalScore}/10`;
-    
-    // DEINE FEEDBACK-TEXTE
-    document.getElementById('feedback-text').innerText = finalScore >= 7 ? 
+    document.getElementById('mini-result').style.display = 'block';
+    document.getElementById('mini-score').innerText = `${finalScore}/10`;
+    document.getElementById('mini-feedback').innerText = finalScore >= 7 ? 
         "Hervorragendes Fachwissen! Sie sind bereit für die Prüfung." : 
         "Gute Basis, aber vertiefen Sie dieses Thema noch einmal.";
+    
+    qIdx = 0; // Zurück zur ersten Frage für die Analyse
+    loadQ();
 }
 
 function goHome() {
     document.body.classList.remove('quiz-active');
     document.getElementById('quiz-view').style.display = 'none';
-    document.getElementById('result-screen').style.display = 'none';
     document.getElementById('start-view').style.display = 'block';
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     window.scrollTo(0,0);
 }
 
 document.getElementById('toggleMode').onclick = () => document.body.classList.toggle('light');
-
 initNav();
 </script>
 </body>
