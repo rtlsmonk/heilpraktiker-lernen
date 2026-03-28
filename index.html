@@ -44,7 +44,6 @@
             min-height: 100vh;
         }
 
-        /* Sidebar Desktop */
         .sidebar {
             width: 350px;
             background: var(--sidebar-bg);
@@ -81,10 +80,8 @@
             color: var(--text);
             transition: transform 0.1s;
         }
-        .tab:active { transform: scale(0.98); }
         .tab.active { background: var(--accent); color: #ffffff; border-color: var(--accent); }
 
-        /* Main Area */
         .main {
             margin-left: 350px;
             flex: 1;
@@ -96,7 +93,7 @@
 
         .container {
             width: 100%;
-            max-width: 850px; /* Breiter auf PC */
+            max-width: 850px; 
             background: var(--card-bg);
             padding: 40px;
             border-radius: 24px;
@@ -104,7 +101,6 @@
             border: 1px solid var(--border);
         }
 
-        /* Top Navigation */
         .top-nav {
             position: fixed;
             top: 25px;
@@ -125,9 +121,7 @@
             font-size: 0.8rem;
             transition: all 0.2s;
         }
-        .nav-btn:hover { border-color: var(--accent); }
 
-        /* Question Picker */
         .question-picker {
             display: flex;
             gap: 8px;
@@ -154,7 +148,6 @@
         .q-dot.unlocked { cursor: pointer; opacity: 1; border-color: var(--accent); color: var(--accent); }
         .q-dot.active { background: var(--accent); color: white; border-color: var(--accent); }
 
-        /* Quiz UI */
         .progress-info { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 800; color: var(--accent); margin-bottom: 8px; text-transform: uppercase; }
         .progress-bar { height: 10px; background: var(--bg); border-radius: 10px; margin-bottom: 25px; border: 1px solid var(--border); overflow: hidden; }
         .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.4s; }
@@ -166,47 +159,38 @@
             background: var(--tab-bg); border: 2px solid var(--border); padding: 18px 22px; 
             border-radius: 16px; color: var(--text); text-align: left; 
             font-size: 1.05rem; cursor: pointer; font-weight: 600; width: 100%; 
-            transition: background 0.2s;
         }
         .option-btn.correct { background: #10b981 !important; color: white !important; border-color: #059669; }
         .option-btn.wrong { background: #ef4444 !important; color: white !important; border-color: #b91c1c; }
         
-        .next-btn { margin-top: 25px; background: var(--accent); color: white; border: none; padding: 15px 40px; border-radius: 14px; font-weight: 800; cursor: pointer; float: right; font-size: 0.95rem; }
+        .btn-group { margin-top: 25px; display: flex; justify-content: flex-end; gap: 15px; }
+        .next-btn, .skip-btn { background: var(--accent); color: white; border: none; padding: 15px 40px; border-radius: 14px; font-weight: 800; cursor: pointer; font-size: 0.95rem; }
+        
         .next-btn:disabled { display: none; }
 
-        /* Spezial Button Beenden */
         #finalHomeBtn {
             background: var(--btn-exit) !important;
             color: white !important;
             border: 2px solid rgba(0,0,0,0.1) !important;
-            float: left;
+            padding: 15px 40px; border-radius: 14px; font-weight: 800; cursor: pointer; font-size: 0.95rem;
             display: none;
         }
 
         .show-mobile { display: none; }
 
-        /* Mobile Optimization */
         @media (max-width: 1000px) {
             body { flex-direction: column; }
             .sidebar { width: 100%; height: auto; position: relative; padding: 15px; border-right: none; border-bottom: 2px solid var(--border); order: 2; }
             .main { margin-left: 0; padding: 10px; order: 1; min-height: auto; }
-            
-            /* Top Nav nicht mehr fixiert auf Mobile */
             .top-nav { position: absolute; top: 15px; right: 10px; }
-            
             .container { padding: 20px; margin-top: 65px; width: 96%; border-radius: 18px; }
             h1 { margin-bottom: 15px; font-size: 1.2rem; }
             .option-btn { padding: 12px 15px; font-size: 0.95rem; border-radius: 12px; }
             .show-mobile { display: inline; }
             .show-desktop { display: none; }
-            
             body.quiz-active .sidebar { display: none; }
-            .next-btn { width: 100%; float: none; margin-top: 15px; padding: 18px; }
-            #finalHomeBtn { width: 100%; margin-bottom: 10px; float: none; }
-            
-            .q-dot { width: 30px; height: 30px; font-size: 0.8rem; }
-            .question-picker { margin-bottom: 15px; gap: 5px; }
-            .progress-bar { margin-bottom: 15px; }
+            .btn-group { flex-direction: column; }
+            .next-btn, .skip-btn, #finalHomeBtn { width: 100%; }
         }
     </style>
 </head>
@@ -241,9 +225,10 @@
             <h1 id="q-text">Lade Frage...</h1>
             <div class="options-list" id="options"></div>
             
-            <div style="margin-top: 20px; overflow: hidden;">
-                <button class="next-btn" id="nextBtn" disabled>WEITER</button>
+            <div class="btn-group">
                 <button class="next-btn" id="finalHomeBtn" onclick="goHome()">QUIZ BEENDEN</button>
+                <button class="skip-btn" id="skipBtn" onclick="skipQuestion()">ÜBERSPRINGEN</button>
+                <button class="next-btn" id="nextBtn" disabled>WEITER</button>
             </div>
         </div>
 
@@ -261,7 +246,6 @@
 </div>
 
 <script>
-// EXAKTE DATENBANK (Wie vorher)
 const examDB = {
     "1. Herz & Kreislauf": [
         {q: "Welche Schicht des Herzens ist für die Kontraktion verantwortlich?", a: ["Endokard", "Myokard", "Epikard", "Perikard"], c: "Myokard"},
@@ -380,12 +364,13 @@ function startQuiz(cat, element) {
 function loadQ() {
     const q = examDB[currentCat][qIdx];
     const nextBtn = document.getElementById('nextBtn');
+    const skipBtn = document.getElementById('skipBtn');
     
     document.getElementById('category-name').innerText = currentCat;
     document.getElementById('question-counter').innerText = `${qIdx + 1} / 10`;
-    document.getElementById('p-fill').style.width = ((qIdx + 1) / 10 * 100) + "%";
+    let answeredCount = userAnswers.filter(a => a !== null).length;
+    document.getElementById('p-fill').style.width = (answeredCount / 10 * 100) + "%";
     document.getElementById('q-text').innerText = q.q;
-    
     updatePicker();
 
     const opts = document.getElementById('options');
@@ -407,12 +392,43 @@ function loadQ() {
 
     if(isResultMode) {
         nextBtn.style.display = "none";
+        skipBtn.style.display = "none";
         document.getElementById('finalHomeBtn').style.display = "block";
     } else {
-        nextBtn.style.display = "block";
-        nextBtn.innerText = qIdx === 9 ? "ZUR AUSWERTUNG" : "WEITER";
-        nextBtn.disabled = userAnswers[qIdx] === null;
+        const allAnswered = userAnswers.every(a => a !== null);
+        if (allAnswered) {
+            nextBtn.innerText = "ZUR AUSWERTUNG";
+            nextBtn.style.display = "block";
+            nextBtn.disabled = false;
+            skipBtn.style.display = "none";
+        } else {
+            if (qIdx === 9 || maxReached >= 9) {
+                nextBtn.innerText = "OFFENE FRAGEN BEANTWORTEN";
+            } else {
+                nextBtn.innerText = "WEITER";
+            }
+            // Logik: Zeige WEITER wenn beantwortet, sonst SKIP
+            if (userAnswers[qIdx] !== null) {
+                nextBtn.style.display = "block";
+                nextBtn.disabled = false;
+                skipBtn.style.display = "none";
+            } else {
+                nextBtn.style.display = "none";
+                skipBtn.style.display = "block";
+            }
+        }
     }
+}
+
+function skipQuestion() {
+    let nextIdx = (qIdx + 1) % 10;
+    while (userAnswers[nextIdx] !== null && nextIdx !== qIdx) {
+        nextIdx = (nextIdx + 1) % 10;
+    }
+    qIdx = nextIdx;
+    if(qIdx > maxReached) maxReached = qIdx;
+    loadQ();
+    window.scrollTo(0,0);
 }
 
 function selectAnswer(txt, btn) {
@@ -424,8 +440,7 @@ function selectAnswer(txt, btn) {
         if(b.innerText === q.c) b.classList.add('correct');
     });
     if(txt !== q.c) btn.classList.add('wrong');
-    document.getElementById('nextBtn').disabled = false;
-    updatePicker();
+    loadQ(); 
 }
 
 function updatePicker() {
@@ -435,7 +450,7 @@ function updatePicker() {
         const dot = document.createElement('div');
         dot.className = 'q-dot';
         dot.innerText = i+1;
-        if(i <= maxReached || isResultMode) {
+        if(i <= maxReached || isResultMode || userAnswers[i] !== null) {
             dot.classList.add('unlocked');
             dot.onclick = () => { qIdx = i; loadQ(); };
         }
@@ -445,8 +460,18 @@ function updatePicker() {
 }
 
 document.getElementById('nextBtn').onclick = () => {
-    if(qIdx < 9) { qIdx++; if(qIdx > maxReached) maxReached = qIdx; loadQ(); }
-    else showFinalResults();
+    const allAnswered = userAnswers.every(a => a !== null);
+    if(allAnswered) {
+        showFinalResults();
+    } else {
+        let nextEmpty = userAnswers.findIndex((ans, index) => index > qIdx && ans === null);
+        if(nextEmpty === -1) nextEmpty = userAnswers.findIndex(ans => ans === null);
+        if(nextEmpty !== -1) {
+            qIdx = nextEmpty;
+            if(qIdx > maxReached) maxReached = qIdx;
+            loadQ();
+        }
+    }
     window.scrollTo(0,0);
 };
 
